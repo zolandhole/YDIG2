@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="20dp"
+    android:background="@drawable/background"
+    tools:context=".LoginActivity">
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:text="@string/masuk"
+        android:textColor="@color/putih"
+        android:background="@drawable/button"/>
+    <TextView
+        android:layout_marginTop="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/memulai"
+        android:textStyle="bold"
+        android:textSize="18sp"
+        android:textColor="@color/putih"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/gabung"
+        android:textColor="@color/putih"/>
+
+    <FrameLayout
+        android:layout_marginTop="30dp"
+        android:id="@+id/FrameLayoutFacebook"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <com.facebook.login.widget.LoginButton
+            android:id="@+id/signInFacebook"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone" />
+        <Button
+            android:drawablePadding="20dp"
+            android:gravity="left|center_vertical"
+            android:drawableLeft="@drawable/fb"
+            android:background="@drawable/button_putih"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/button_facebook"
+            android:textAllCaps="false"
+            android:text="@string/gunakan_akun_facebook"
+            android:textColor="@color/colorPrimaryDark"
+            android:drawableStart="@drawable/fb"
+            tools:ignore="RtlHardcoded" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:layout_marginTop="10dp"
+        android:id="@+id/FrameLayoutGoogle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.google.android.gms.common.SignInButton
+            android:id="@+id/signInGoogle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone" />
+
+        <Button
+            android:drawablePadding="20dp"
+            android:gravity="left|center_vertical"
+            android:drawableLeft="@drawable/google"
+            android:background="@drawable/button_putih"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/button_google"
+            android:textAllCaps="false"
+            android:text="@string/gunakan_akun_google"
+            android:textColor="@color/colorPrimaryDark"
+            android:drawableStart="@drawable/google"
+            tools:ignore="RtlHardcoded" />
+    </FrameLayout>
+
+    <Button
+        android:layout_marginTop="40dp"
+        android:background="@drawable/button_putih"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/button_ydig"
+        android:textAllCaps="false"
+        android:textAlignment="center"
+        android:text="@string/buat_akun_baru"
+        android:textColor="@color/colorPrimaryDark"
+        tools:ignore="RtlHardcoded" />
+
+    <TextView
+        android:layout_marginTop="40dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/policy"
+        android:textSize="12sp"
+        android:textColor="@color/putih"/>
+</LinearLayout>

@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">YDIG</string>
+    <string name="facebook_app_id">2087553577958793</string>
+    <string name="fb_login_protocol_scheme">fb2087553577958793</string>
+    <string name="googlelogin">Masuk dengan Google</string>
+    <string name="keluar">Keluar</string>
+    <string name="email_anda">Email Anda</string>
+    <string name="nama_anda">Nama Anda</string>
+    <string name="daftarkan">Daftarkan Saya di YDIG</string>
+    <string name="policy">kami menjamin semua detail yang Anda kirimkan akan dirahasiakan dan tidak akan dibagikan dengan pihak lain untuk tujuan apa pun</string>
+    <string name="buat_akun_baru">Buat akun baru</string>
+    <string name="gunakan_akun_google">Gunakan akun Google</string>
+    <string name="gunakan_akun_facebook">Gunakan akun Facebook</string>
+    <string name="gabung">Bergabung dengan Dialog Islam Garuda</string>
+    <string name="memulai">Memulai</string>
+    <string name="masuk">Masuk</string>
+</resources>
