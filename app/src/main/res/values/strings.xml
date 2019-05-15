@@ -14,4 +14,13 @@
     <string name="gabung">Bergabung dengan Dialog Islam Garuda</string>
     <string name="memulai">Memulai</string>
     <string name="masuk">Masuk</string>
+    <string name="home">Home</string>
+    <string name="info_kajian">Info Kajian</string>
+    <string name="radio_streaming">Radio Streaming</string>
+    <string name="chatting">Chatting</string>
+    <string name="pengaturan">Pengaturan</string>
+    <string name="profile">Profile</string>
+    <string name="surampak_sakosoy">Surampak Sakosoy</string>
+    <string name="www_surampaksakosoy_com">www.surampaksakosoy.com</string>
+    <string name="navigation">Open Navigation Drawer</string>
 </resources>
