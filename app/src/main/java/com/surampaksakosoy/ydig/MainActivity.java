@@ -9,6 +9,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
@@ -19,6 +20,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.facebook.internal.ImageRequest;
 import com.facebook.login.LoginManager;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -43,6 +45,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private DrawerLayout drawerLayout;
     private Toolbar toolbar;
     private NavigationView navigationView;
+    private static final String TAG = "MainActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,14 +124,33 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         textViewNama.setText(NAMA);
         textViewEmail.setText(EMAIL);
 
+        Uri photo = null;
         if (SUMBER_LOGIN.equals("FACEBOOK")){
             int dimensionPixelSize = getResources()
                     .getDimensionPixelSize(com.facebook.R.dimen.com_facebook_profilepictureview_preset_size_large);
-            final Uri profilePictureUri = ImageRequest.getProfilePictureUri(ID_LOGIN, dimensionPixelSize , dimensionPixelSize );
-            Glide.with(this).load(profilePictureUri).diskCacheStrategy(DiskCacheStrategy.RESOURCE).into(imageView);
+            photo = ImageRequest.getProfilePictureUri(ID_LOGIN, dimensionPixelSize , dimensionPixelSize );
+            Glide.with(this).load(photo).diskCacheStrategy(DiskCacheStrategy.RESOURCE).into(imageView);
+        } else if (SUMBER_LOGIN.equals("GOOGLE")){
+            GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
+            if (account != null){
+                photo = account.getPhotoUrl();
+                if (photo!=null){
+                    Glide.with(this).load(photo).diskCacheStrategy(DiskCacheStrategy.RESOURCE).into(imageView);
+                }
+            }
         }
+        Log.e(TAG, "percantikNavigasiHeader: " + photo);
+        savePhoto(photo);
+    }
 
-
+    private void savePhoto(Uri photo) {
+        List<String> list = new ArrayList<>();
+        list.add(ID_LOGIN);
+        list.add(String.valueOf(photo));
+        ServerHandler serverHandler = new ServerHandler(this, "MAIN_SAVE_PHOTO");
+        synchronized (this){
+            serverHandler.sendData(list);
+        }
     }
 
     private void prosesLogout() {

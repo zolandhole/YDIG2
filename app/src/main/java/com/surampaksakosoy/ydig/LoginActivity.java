@@ -59,7 +59,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private FrameLayout FrameLayoutFacebook, FrameLayoutGoogle;
 
     private DBHandler dbHandler;
-    private String SUMBER_LOGIN, ID_LOGIN, NAMA, EMAIL;
+    private String SUMBER_LOGIN;
+    private String ID_LOGIN;
+    private String NAMA;
+    private String EMAIL;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

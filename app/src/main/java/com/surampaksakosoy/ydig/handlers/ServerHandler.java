@@ -2,7 +2,6 @@ package com.surampaksakosoy.ydig.handlers;
 
 import android.content.Context;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -76,7 +75,7 @@ public class ServerHandler {
             loginActivity.keMainActivity();
         } else {
             try {
-                Toast.makeText(context, jsonObject.getString("pesan"), Toast.LENGTH_SHORT).show();
+                Log.e(TAG, "responseSuccess: " + jsonObject.getString("pesan"));
             } catch (JSONException e) {
                 Log.e(TAG, "responseSuccess: " + e);
                 e.printStackTrace();
@@ -89,6 +88,7 @@ public class ServerHandler {
         switch (aktifitas){
             case "LOGIN_DATA": URL = PublicAddress.POST_LOGIN; break;
             case "MAIN_LOGOUT": URL = PublicAddress.POST_LOGOUT; break;
+            case "MAIN_SAVE_PHOTO": URL = PublicAddress.POST_SAVE_PHOTO; break;
         }
         return URL;
     }
