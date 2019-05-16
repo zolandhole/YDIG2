@@ -6,13 +6,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
-
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,12 +33,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import de.hdodenhof.circleimageview.CircleImageView;
+
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private String SUMBER_LOGIN, ID_LOGIN, NAMA, EMAIL;
     private DBHandler dbHandler;
     private GoogleSignInClient googleSignInClient;
-//    private static final String TAG = "MainActivity";
     private DrawerLayout drawerLayout;
     private Toolbar toolbar;
     private NavigationView navigationView;
@@ -110,8 +109,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void loginSuccess() {
-        View view = navigationView.getHeaderView(0);
-        ImageView imageView = view.findViewById(R.id.nav_image_view);
+        percantikNavigasiHeader();
+    }
+
+    private void percantikNavigasiHeader() {
+        final View view = navigationView.getHeaderView(0);
+        final CircleImageView imageView = view.findViewById(R.id.nav_image_view);
         TextView textViewNama  = view.findViewById(R.id.nav_name);
         TextView textViewEmail = view.findViewById(R.id.nav_email);
 
@@ -121,9 +124,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (SUMBER_LOGIN.equals("FACEBOOK")){
             int dimensionPixelSize = getResources()
                     .getDimensionPixelSize(com.facebook.R.dimen.com_facebook_profilepictureview_preset_size_large);
-            Uri profilePictureUri = ImageRequest.getProfilePictureUri(ID_LOGIN, dimensionPixelSize , dimensionPixelSize );
+            final Uri profilePictureUri = ImageRequest.getProfilePictureUri(ID_LOGIN, dimensionPixelSize , dimensionPixelSize );
             Glide.with(this).load(profilePictureUri).diskCacheStrategy(DiskCacheStrategy.RESOURCE).into(imageView);
         }
+
+
     }
 
     private void prosesLogout() {
