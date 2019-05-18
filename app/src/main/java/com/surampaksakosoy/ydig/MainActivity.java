@@ -9,7 +9,6 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
@@ -45,7 +44,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private DrawerLayout drawerLayout;
     private Toolbar toolbar;
     private NavigationView navigationView;
-    private static final String TAG = "MainActivity";
+    private View view = null;
+//    private static final String TAG = "MainActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -139,7 +139,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
             }
         }
-        Log.e(TAG, "percantikNavigasiHeader: " + photo);
         savePhoto(photo);
     }
 
@@ -149,7 +148,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         list.add(String.valueOf(photo));
         ServerHandler serverHandler = new ServerHandler(this, "MAIN_SAVE_PHOTO");
         synchronized (this){
-            serverHandler.sendData(list);
+            serverHandler.sendData(list, view);
         }
     }
 
@@ -179,7 +178,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         List<String> list = new ArrayList<>();
         list.add(ID_LOGIN);
         synchronized (this){
-            serverHandler.sendData(list);
+            serverHandler.sendData(list, view);
         }
         Intent intent = new Intent(this, LoginActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

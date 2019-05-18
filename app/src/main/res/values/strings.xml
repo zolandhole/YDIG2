@@ -25,4 +25,8 @@
     <string name="navigation">Open Navigation Drawer</string>
     <string name="tanya_jawab">Tanya Jawab</string>
     <string name="konsultasi">Konsultasi</string>
+    <string name="judul">Judul</string>
+    <string name="tulisan_arab">Tulisan Arab</string>
+    <string name="arti_tulisan_arab">Arti Tulisan Arab</string>
+    <string name="kontent">Kontent</string>
 </resources>

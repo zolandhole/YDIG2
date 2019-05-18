@@ -63,6 +63,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private String ID_LOGIN;
     private String NAMA;
     private String EMAIL;
+    private View view=null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -254,7 +255,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         list.add(status);
         ServerHandler serverHandler = new ServerHandler(this, "LOGIN_DATA");
         synchronized (this){
-            serverHandler.sendData(list);
+            serverHandler.sendData(list, view);
         }
     }
 }

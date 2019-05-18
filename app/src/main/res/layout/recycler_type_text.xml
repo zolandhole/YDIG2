@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_marginTop="8dp"
+    android:layout_marginBottom="8dp"
+    app:cardElevation="10dp">
+
+    <LinearLayout
+        android:layout_margin="8dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <TextView
+            android:id="@+id/text_judul"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:textSize="14sp"
+            android:text="@string/judul"/>
+        <TextView
+            android:textStyle="bold"
+            android:textSize="20sp"
+            android:id="@+id/text_arab"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/tulisan_arab"
+            android:fontFamily="@font/amiribold"/>
+        <TextView
+            android:id="@+id/text_arti"
+            android:textAlignment="textEnd"
+            android:textStyle="italic"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/arti_tulisan_arab"
+            android:gravity="end" />
+        <com.codesgood.views.JustifiedTextView
+            android:layout_marginTop="8dp"
+            android:id="@+id/text_kontent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/kontent"/>
+    </LinearLayout>
+</androidx.cardview.widget.CardView>
