@@ -29,4 +29,5 @@
     <string name="tulisan_arab">Tulisan Arab</string>
     <string name="arti_tulisan_arab">Arti Tulisan Arab</string>
     <string name="kontent">Kontent</string>
+    <string name="belum_ada_data">Belum ada Data</string>
 </resources>

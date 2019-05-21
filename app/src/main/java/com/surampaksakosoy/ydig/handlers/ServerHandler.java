@@ -12,6 +12,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.surampaksakosoy.ydig.LoginActivity;
+import com.surampaksakosoy.ydig.MainActivity;
 import com.surampaksakosoy.ydig.fragment.FragmentHome;
 import com.surampaksakosoy.ydig.models.ModelHome;
 import com.surampaksakosoy.ydig.utils.PublicAddress;
@@ -36,12 +37,12 @@ public class ServerHandler {
         this.aktifitas = aktifitas;
     }
 
-    public void sendData(final List<String> list, final View view){
+    public void sendData(final List<String> list){
         StringRequest stringRequest = new StringRequest(Request.Method.POST, alamatServer(),
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        responseFromServer(response, view);
+                        responseFromServer(response);
                     }
                 },
                 new Response.ErrorListener() {
@@ -61,13 +62,14 @@ public class ServerHandler {
         requestQueue.add(stringRequest);
     }
 
-    private void responseFromServer(String response, View view) {
+    private void responseFromServer(String response) {
         try {
             JSONObject jsonObject = new JSONObject(response);
             if (jsonObject.optString("error").equals("true")){
+                responseFailed(jsonObject);
                 Log.e(TAG, "responseFromServer: " + jsonObject.getString("pesan") );
             } else {
-                responseSuccess(jsonObject, view);
+                responseSuccess(jsonObject);
             }
         } catch (JSONException e) {
             Log.e(TAG, "responseFromServer: "+ e);
@@ -75,11 +77,23 @@ public class ServerHandler {
         }
     }
 
-    private void responseSuccess(JSONObject jsonObject, View view) {
+    private void responseFailed(JSONObject jsonObject) {
+        if ("GET_HOME_DATA".equals(aktifitas)){
+            try {
+                String pesan = jsonObject.getString("pesan");
+                MainActivity mainActivity = (MainActivity) context;
+//                mainActivity.responseGetHomeDataFailed(pesan);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void responseSuccess(JSONObject jsonObject) {
         if ("LOGIN_DATA".equals(aktifitas)) {
             LoginActivity loginActivity = (LoginActivity) context;
             loginActivity.keMainActivity();
-        } else if("HOME_GET_DATA".equals(aktifitas)){
+        } else if("GET_HOME_DATA".equals(aktifitas)){
             try {
                 JSONArray jsonArray = jsonObject.getJSONArray("pesan");
                 List<ModelHome> list = new ArrayList<>();
@@ -96,8 +110,7 @@ public class ServerHandler {
                             dataIsi.getString("arti")
                     ));
                 }
-                FragmentHome fragmentHome = new FragmentHome();
-                fragmentHome.pasangkanKeRecyclerView(list, view);
+
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -117,59 +130,8 @@ public class ServerHandler {
             case "LOGIN_DATA": URL = PublicAddress.POST_LOGIN; break;
             case "MAIN_LOGOUT": URL = PublicAddress.POST_LOGOUT; break;
             case "MAIN_SAVE_PHOTO": URL = PublicAddress.POST_SAVE_PHOTO; break;
-            case "HOME_GET_DATA": URL = PublicAddress.POST_HOME_GET_DATA; break;
+            case "GET_HOME_DATA": URL = PublicAddress.GET_HOME_DATA; break;
         }
         return URL;
-    }
-
-    public void kirimData(final List<String> parameter, final View view) {
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, PublicAddress.POST_HOME_GET_DATA,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        try {
-                            JSONObject jsonObject = new JSONObject(response);
-                            if (jsonObject.optString("error").equals("true")){
-                                Log.e(TAG, "onResponse: atas" + jsonObject.getString("pesan"));
-                            } else {
-                                JSONArray jsonArray = jsonObject.getJSONArray("pesan");
-                                List<ModelHome> list = new ArrayList<>();
-                                for (int i = 0; i < jsonArray.length(); i++) {
-                                    JSONObject dataServer = jsonArray.getJSONObject(i);
-                                    JSONObject dataIsi = dataServer.getJSONObject("data");
-                                    list.add(new ModelHome(
-                                            Integer.parseInt(dataIsi.getString("type")),
-                                            dataIsi.getString("data"),
-                                            dataIsi.getString("videoPath"),
-                                            dataIsi.getString("judul"),
-                                            dataIsi.getString("kontent"),
-                                            dataIsi.getString("arab"),
-                                            dataIsi.getString("arti")
-                                    ));
-                                }
-                                FragmentHome fragmentHome = new FragmentHome();
-                                fragmentHome.pasangkanKeRecyclerView(list, view);
-                            }
-                        } catch (JSONException e) {
-                            Log.e(TAG, "onResponse: " + e);
-                            e.printStackTrace();
-                        }
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Log.e(TAG, "onErrorResponse: " + error);
-                    }
-                }){
-            @Override
-            protected Map<String, String> getParams() {
-                Map<String, String> params = new HashMap<>();
-                params.put("params", String.valueOf(parameter));
-                return params;
-            }
-        };
-        @SuppressLint({"NewApi", "LocalSuppress"}) RequestQueue requestQueue = Volley.newRequestQueue(context);
-        requestQueue.add(stringRequest);
     }
 }

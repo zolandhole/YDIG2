@@ -20,11 +20,21 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.surampaksakosoy.ydig.R;
 import com.surampaksakosoy.ydig.models.ModelHome;
+import com.surampaksakosoy.ydig.utils.OnLoadMoreListener;
+
 import java.util.List;
 
 import static android.text.Layout.JUSTIFICATION_MODE_INTER_WORD;
 
 public class AdapterHome extends RecyclerView.Adapter {
+
+    private final int VIEW_ITEM = 11;
+    private final int VIEW_PROG = 10;
+
+    private int visibleTreshold = 5;
+    private int lasVisibleItem, totalItemCount;
+    private boolean loading;
+    private OnLoadMoreListener onLoadMoreListener;
 
     private List<ModelHome> dataset;
     private Context context;

@@ -1,9 +1,13 @@
 package com.surampaksakosoy.ydig.fragment;
 
+import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -13,32 +17,89 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.surampaksakosoy.ydig.R;
 import com.surampaksakosoy.ydig.adapters.AdapterHome;
-import com.surampaksakosoy.ydig.handlers.ServerHandler;
+import com.surampaksakosoy.ydig.handlers.HandlerServer;
 import com.surampaksakosoy.ydig.models.ModelHome;
+import com.surampaksakosoy.ydig.utils.VolleyCallback;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class FragmentHome extends Fragment {
 
-    private List<ModelHome> list;
+    private TextView textView;
     private RecyclerView recyclerView;
-    private final int THREAD_SHOT = 5;
-    private boolean isLoading = false;
+    private AdapterHome adapterHome;
+    private LinearLayoutManager linearLayoutManager;
     private static final String TAG = "FragmentHome";
+    private FragmentHomeListener listener;
 
     public FragmentHome(){
+    }
+
+    public interface  FragmentHomeListener{
+        void onInputHomeSent(List<String> input);
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof FragmentHome.FragmentHomeListener){
+            listener = (FragmentHomeListener) context;
+        } else {
+            throw new RuntimeException(context.toString() + " harus mengimplementasi FragmentHomeListener");
+        }
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_home, container, false);
+        final View view = inflater.inflate(R.layout.fragment_home, container, false);
 
-        List<String> parameter = new ArrayList<>();
-        parameter.add("6");
-        getDataFromServer(parameter, view);
+        recyclerView = view.findViewById(R.id.home_recyclerview);
+        textView = view.findViewById(R.id.home_textview);
+
+        List<String> list = new ArrayList<>();
+        list.add("0");
+        HandlerServer handlerServer = new HandlerServer(getActivity(),"GET_HOME_DATA");
+        synchronized (getActivity()){
+            handlerServer.getList(new VolleyCallback() {
+                @Override
+                public void onFailed(String result) {
+                    Toast.makeText(getActivity(), result, Toast.LENGTH_SHORT).show();
+                    Log.e(TAG, "onFailed: " + result);
+                }
+
+                @Override
+                public void onSuccess(List<ModelHome> result) {
+                    tampilankanSuccess(result);
+                }
+            }, list);
+        }
+
+
         return view;
+    }
+
+    private void tampilankanSuccess(List<ModelHome> result) {
+        if (result.isEmpty()){
+            textView.setVisibility(View.VISIBLE);
+            recyclerView.setVisibility(View.GONE);
+        } else {
+            textView.setVisibility(View.GONE);
+            adapterHome = new AdapterHome(result,getActivity());
+            linearLayoutManager = new LinearLayoutManager(getActivity());
+            recyclerView.setLayoutManager(linearLayoutManager);
+            recyclerView.setItemAnimator(new DefaultItemAnimator());
+            recyclerView.setAdapter(adapterHome);
+            recyclerView.setVisibility(View.VISIBLE);
+        }
+
+
+
+    }
+
+    public void updateData(List<ModelHome> newData){
+        Log.e(TAG, "updateData: " + newData);
     }
 
     @Override
@@ -46,44 +107,9 @@ public class FragmentHome extends Fragment {
         super.onCreate(savedInstanceState);
     }
 
-    private void getDataFromServer(final List<String> parameter, final View view) {
-        ServerHandler serverHandler = new ServerHandler(getActivity(),"HOME_GET_DATA");
-        synchronized (getActivity()){
-            serverHandler.kirimData(parameter, view);
-        }
-    }
-
-    public void pasangkanKeRecyclerView(List<ModelHome> lists, View view) {
-        list = lists;
-
-        assert this.getArguments() != null;
-        AdapterHome adapterHome = new AdapterHome(this.list,getActivity());
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
-        recyclerView = view.findViewById(R.id.home_recyclerview);
-        recyclerView.setLayoutManager(linearLayoutManager);
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
-        recyclerView.setAdapter(adapterHome);
-
-        final LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
-        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-            }
-
-            @Override
-            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-                if (!isLoading && layoutManager.getItemCount() - THREAD_SHOT == layoutManager.findLastVisibleItemPosition()){
-                    loadMoreData();
-                }
-            }
-        });
-    }
-
-    private void loadMoreData() {
-        List<String> parameter = new ArrayList<>();
-        parameter.add("1");
-        parameter.add("6");
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        listener = null;
     }
 }

@@ -9,6 +9,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
@@ -36,7 +37,7 @@ import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, FragmentHome.FragmentHomeListener {
 
     private String SUMBER_LOGIN, ID_LOGIN, NAMA, EMAIL;
     private DBHandler dbHandler;
@@ -44,8 +45,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private DrawerLayout drawerLayout;
     private Toolbar toolbar;
     private NavigationView navigationView;
-    private View view = null;
-//    private static final String TAG = "MainActivity";
+    private FragmentHome fragmentHome;
+    private static final String TAG = "MainActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,12 +62,30 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
 
+//        getHomeData(savedInstanceState);
         if (savedInstanceState == null){
             getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container,
                     new FragmentHome()).commit();
             navigationView.setCheckedItem(R.id.nav_home);
         }
+
     }
+
+    private void getHomeData(Bundle savedInstanceState) {
+        ServerHandler serverHandler = new ServerHandler(this,"GET_HOME_DATA");
+        List<String> params = new ArrayList<>();
+        synchronized (this){
+            serverHandler.sendData(params);
+        }
+
+    }
+//    public void responseGetHomeDataFailed(String pesan) {
+//        Toast.makeText(this, pesan, Toast.LENGTH_SHORT).show();
+//    }
+//    public void responseGetHomeDataSuccess(List<ModelHome> list) {
+//        fragmentHome = new FragmentHome();
+//        fragmentHome.updateData(list);
+//    }
 
     @Override
     public void onBackPressed() {
@@ -148,7 +167,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         list.add(String.valueOf(photo));
         ServerHandler serverHandler = new ServerHandler(this, "MAIN_SAVE_PHOTO");
         synchronized (this){
-            serverHandler.sendData(list, view);
+            serverHandler.sendData(list);
         }
     }
 
@@ -178,7 +197,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         List<String> list = new ArrayList<>();
         list.add(ID_LOGIN);
         synchronized (this){
-            serverHandler.sendData(list, view);
+            serverHandler.sendData(list);
         }
         Intent intent = new Intent(this, LoginActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -210,5 +229,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
         }
         return false;
+    }
+
+    @Override
+    public void onInputHomeSent(List<String> input) {
+        Log.e(TAG, "onInputHomeSent: " + input);
     }
 }
