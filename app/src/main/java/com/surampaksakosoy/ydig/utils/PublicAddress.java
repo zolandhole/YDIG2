@@ -5,4 +5,5 @@ public class PublicAddress {
     public static final String POST_LOGOUT = "http://122.248.39.157:12345/ydig/user/logout_mobile";
     public static final String POST_SAVE_PHOTO = "http://122.248.39.157:12345/ydig/user/save_photo";
     public static final String GET_HOME_DATA = "http://122.248.39.157:12345/ydig/kontent/manage";
+    public static final String GET_MORE_DATA = "http://122.248.39.157:12345/ydig/kontent/load_more";
 }

@@ -82,7 +82,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 //    public void responseGetHomeDataFailed(String pesan) {
 //        Toast.makeText(this, pesan, Toast.LENGTH_SHORT).show();
 //    }
-//    public void responseGetHomeDataSuccess(List<ModelHome> list) {
+//    public void responseGetHomeDataSuccess(List<ModelHomeJadi> list) {
 //        fragmentHome = new FragmentHome();
 //        fragmentHome.updateData(list);
 //    }
@@ -232,7 +232,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
-    public void onInputHomeSent(List<String> input) {
+    public void onInputHomeSent(String input) {
         Log.e(TAG, "onInputHomeSent: " + input);
     }
 }

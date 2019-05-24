@@ -9,9 +9,9 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.surampaksakosoy.ydig.models.ModelHome;
+import com.surampaksakosoy.ydig.models.ModelHomeJadi;
 import com.surampaksakosoy.ydig.utils.PublicAddress;
-import com.surampaksakosoy.ydig.utils.VolleyCallback;
+import com.surampaksakosoy.ydig.interfaces.VolleyCallback;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -44,22 +44,34 @@ public class HandlerServer {
                                 Log.e(TAG, "responseFromServer: " + jsonObject.getString("pesan") );
                             } else {
                                 JSONArray jsonArray = jsonObject.getJSONArray("pesan");
-                                List<ModelHome> list = new ArrayList<>();
-                                for (int i = 0; i < jsonArray.length(); i++) {
-                                    JSONObject dataServer = jsonArray.getJSONObject(i);
-                                    JSONObject dataIsi = dataServer.getJSONObject("data");
-                                    list.add(new ModelHome(
-                                            Integer.parseInt(dataIsi.getString("type")),
-                                            dataIsi.getString("data"),
-                                            dataIsi.getString("videoPath"),
-                                            dataIsi.getString("judul"),
-                                            dataIsi.getString("kontent"),
-                                            dataIsi.getString("arab"),
-                                            dataIsi.getString("arti")
-                                    ));
-                                    Log.e(TAG, "onResponse: " + dataIsi.getString("arab"));
+                                switch (aktifitas){
+                                    case "GET_HOME_DATA":
+                                        List<ModelHomeJadi> list = new ArrayList<>();
+                                        JSONObject dataServer = null;
+                                        for (int i = 0; i < jsonArray.length(); i++) {
+                                            dataServer = jsonArray.getJSONObject(i);
+                                            JSONObject isiData = dataServer.getJSONObject("data");
+                                            list.add(new ModelHomeJadi(
+                                                    Integer.parseInt(dataServer.getString("id")),
+                                                    Integer.parseInt(isiData.getString("type")),
+                                                    isiData.getString("data"),
+                                                    isiData.getString("videoPath"),
+                                                    isiData.getString("judul"),
+                                                    isiData.getString("kontent"),
+                                                    isiData.getString("arab"),
+                                                    isiData.getString("arti"),
+                                                    dataServer.getString("upload_date")
+                                            ));
+                                        }
+                                        String lastID = dataServer.getString("id");
+                                        callback.onSuccess(list, lastID);
+                                        break;
+
+                                    case "GET_MORE_DATA":
+                                        callback.onJsonArray(jsonArray);
+                                        break;
                                 }
-                                callback.onSuccess(list);
+
                             }
                         } catch (JSONException e) {
                             Log.e(TAG, "responseFromServer: "+ e);
@@ -91,6 +103,7 @@ public class HandlerServer {
             case "MAIN_LOGOUT": URL = PublicAddress.POST_LOGOUT; break;
             case "MAIN_SAVE_PHOTO": URL = PublicAddress.POST_SAVE_PHOTO; break;
             case "GET_HOME_DATA": URL = PublicAddress.GET_HOME_DATA; break;
+            case "GET_MORE_DATA": URL = PublicAddress.GET_MORE_DATA; break;
         }
         return URL;
     }

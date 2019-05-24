@@ -30,4 +30,8 @@
     <string name="arti_tulisan_arab">Arti Tulisan Arab</string>
     <string name="kontent">Kontent</string>
     <string name="belum_ada_data">Belum ada Data</string>
+    <string name="upload_date">upload date</string>
+    <string name="arab_here">Arab here</string>
+    <string name="arti_here">arti here</string>
+    <string name="konten_here">Konten here</string>
 </resources>

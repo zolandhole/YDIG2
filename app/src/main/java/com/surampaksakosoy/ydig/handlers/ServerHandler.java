@@ -1,9 +1,7 @@
 package com.surampaksakosoy.ydig.handlers;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.Log;
-import android.view.View;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -13,15 +11,11 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.surampaksakosoy.ydig.LoginActivity;
 import com.surampaksakosoy.ydig.MainActivity;
-import com.surampaksakosoy.ydig.fragment.FragmentHome;
-import com.surampaksakosoy.ydig.models.ModelHome;
 import com.surampaksakosoy.ydig.utils.PublicAddress;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -93,27 +87,6 @@ public class ServerHandler {
         if ("LOGIN_DATA".equals(aktifitas)) {
             LoginActivity loginActivity = (LoginActivity) context;
             loginActivity.keMainActivity();
-        } else if("GET_HOME_DATA".equals(aktifitas)){
-            try {
-                JSONArray jsonArray = jsonObject.getJSONArray("pesan");
-                List<ModelHome> list = new ArrayList<>();
-                for (int i = 0; i < jsonArray.length(); i++) {
-                    JSONObject dataServer = jsonArray.getJSONObject(i);
-                    JSONObject dataIsi = dataServer.getJSONObject("data");
-                    list.add(new ModelHome(
-                            Integer.parseInt(dataIsi.getString("type")),
-                            dataIsi.getString("data"),
-                            dataIsi.getString("videoPath"),
-                            dataIsi.getString("judul"),
-                            dataIsi.getString("kontent"),
-                            dataIsi.getString("arab"),
-                            dataIsi.getString("arti")
-                    ));
-                }
-
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
         } else {
             try {
                 Log.e(TAG, "responseSuccess: " + jsonObject.getString("pesan"));

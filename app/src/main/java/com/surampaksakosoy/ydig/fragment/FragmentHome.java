@@ -2,12 +2,12 @@ package com.surampaksakosoy.ydig.fragment;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -18,8 +18,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.surampaksakosoy.ydig.R;
 import com.surampaksakosoy.ydig.adapters.AdapterHome;
 import com.surampaksakosoy.ydig.handlers.HandlerServer;
-import com.surampaksakosoy.ydig.models.ModelHome;
-import com.surampaksakosoy.ydig.utils.VolleyCallback;
+import com.surampaksakosoy.ydig.interfaces.OnLoadMoreListener;
+import com.surampaksakosoy.ydig.interfaces.VolleyCallback;
+import com.surampaksakosoy.ydig.models.ModelHomeJadi;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +34,8 @@ public class FragmentHome extends Fragment {
     private TextView textView;
     private RecyclerView recyclerView;
     private AdapterHome adapterHome;
-    private LinearLayoutManager linearLayoutManager;
+    private String lastID;
+    private List<ModelHomeJadi> modelHomes;
     private static final String TAG = "FragmentHome";
     private FragmentHomeListener listener;
 
@@ -37,7 +43,7 @@ public class FragmentHome extends Fragment {
     }
 
     public interface  FragmentHomeListener{
-        void onInputHomeSent(List<String> input);
+        void onInputHomeSent(String input);
     }
 
     @Override
@@ -60,18 +66,22 @@ public class FragmentHome extends Fragment {
 
         List<String> list = new ArrayList<>();
         list.add("0");
-        HandlerServer handlerServer = new HandlerServer(getActivity(),"GET_HOME_DATA");
-        synchronized (getActivity()){
+        HandlerServer handlerServer = new HandlerServer(getActivity().getApplicationContext(),"GET_HOME_DATA");
+        synchronized (getActivity().getApplicationContext()){
             handlerServer.getList(new VolleyCallback() {
                 @Override
                 public void onFailed(String result) {
-                    Toast.makeText(getActivity(), result, Toast.LENGTH_SHORT).show();
                     Log.e(TAG, "onFailed: " + result);
                 }
 
                 @Override
-                public void onSuccess(List<ModelHome> result) {
-                    tampilankanSuccess(result);
+                public void onSuccess(List<ModelHomeJadi> result, String lastID) {
+                    tampilankanSuccess(result, lastID);
+                }
+
+                @Override
+                public void onJsonArray(JSONArray jsonArray) {
+
                 }
             }, list);
         }
@@ -80,25 +90,90 @@ public class FragmentHome extends Fragment {
         return view;
     }
 
-    private void tampilankanSuccess(List<ModelHome> result) {
+    private void tampilankanSuccess(final List<ModelHomeJadi> result, final String lastID) {
+        this.lastID = lastID;
+        this.modelHomes = result;
         if (result.isEmpty()){
             textView.setVisibility(View.VISIBLE);
             recyclerView.setVisibility(View.GONE);
         } else {
             textView.setVisibility(View.GONE);
-            adapterHome = new AdapterHome(result,getActivity());
-            linearLayoutManager = new LinearLayoutManager(getActivity());
+            final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity().getApplicationContext());
             recyclerView.setLayoutManager(linearLayoutManager);
+            adapterHome = new AdapterHome(modelHomes,getActivity().getApplicationContext(), recyclerView);
             recyclerView.setItemAnimator(new DefaultItemAnimator());
             recyclerView.setAdapter(adapterHome);
             recyclerView.setVisibility(View.VISIBLE);
+
+            adapterHome.setOnLoadMoreListener(new OnLoadMoreListener() {
+                @Override
+                public void onLoadMore() {
+                    modelHomes.add(null);
+                    adapterHome.notifyItemInserted(modelHomes.size()-1);
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            modelHomes.remove(modelHomes.size()-1);
+                            adapterHome.notifyItemRemoved(modelHomes.size());
+                            loadMoreData();
+
+                        }
+                    }, 2000);
+                }
+            });
+            Log.e(TAG, "tampilankanSuccess: " + lastID);
         }
-
-
 
     }
 
-    public void updateData(List<ModelHome> newData){
+    private void loadMoreData() {
+//        listener.onInputHomeSent(lastID);
+        List<String> params = new ArrayList<>();
+        params.add(lastID);
+            HandlerServer handlerServer = new HandlerServer(getActivity(),"GET_MORE_DATA");
+            synchronized (getActivity()){
+                handlerServer.getList(new VolleyCallback() {
+                    @Override
+                    public void onFailed(String result) {
+                    }
+
+                    @Override
+                    public void onSuccess(List<ModelHomeJadi> result, String lastID) {
+                    }
+
+                    @Override
+                    public void onJsonArray(JSONArray jsonArray) {
+                        try {
+                            JSONObject dataServer = null;
+                            for (int i = 0; i < jsonArray.length(); i++) {
+                                dataServer = jsonArray.getJSONObject(i);
+                                JSONObject isiData = dataServer.getJSONObject("data");
+                                ModelHomeJadi item = (new ModelHomeJadi(
+                                        Integer.parseInt(dataServer.getString("id")),
+                                        Integer.parseInt(isiData.getString("type")),
+                                        isiData.getString("data"),
+                                        isiData.getString("videoPath"),
+                                        isiData.getString("judul"),
+                                        isiData.getString("kontent"),
+                                        isiData.getString("arab"),
+                                        isiData.getString("arti"),
+                                        dataServer.getString("upload_date")
+                                ));
+                                modelHomes.add(item);
+                            }
+                            adapterHome.notifyDataSetChanged();
+                            adapterHome.setLoaded();
+                            lastID = dataServer.getString("id");
+                            Log.e(TAG, "onJsonArray: " + lastID);
+                        } catch (JSONException e){
+                            e.printStackTrace();
+                        }
+                    }
+                }, params);
+            }
+    }
+
+    public void updateData(List<ModelHomeJadi> newData){
         Log.e(TAG, "updateData: " + newData);
     }
 
