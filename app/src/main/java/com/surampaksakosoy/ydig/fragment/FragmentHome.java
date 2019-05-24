@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -15,6 +16,8 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
 import com.surampaksakosoy.ydig.R;
 import com.surampaksakosoy.ydig.adapters.AdapterHome;
 import com.surampaksakosoy.ydig.handlers.HandlerServer;
@@ -29,27 +32,29 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FragmentHome extends Fragment {
+public class FragmentHome extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
     private TextView textView;
     private RecyclerView recyclerView;
     private AdapterHome adapterHome;
     private String lastID;
     private List<ModelHomeJadi> modelHomes;
+    private ProgressBar progressBar;
+    private SwipeRefreshLayout swipeRefresh;
     private static final String TAG = "FragmentHome";
     private FragmentHomeListener listener;
 
-    public FragmentHome(){
+    public FragmentHome() {
     }
 
-    public interface  FragmentHomeListener{
+    public interface FragmentHomeListener {
         void onInputHomeSent(String input);
     }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof FragmentHome.FragmentHomeListener){
+        if (context instanceof FragmentHome.FragmentHomeListener) {
             listener = (FragmentHomeListener) context;
         } else {
             throw new RuntimeException(context.toString() + " harus mengimplementasi FragmentHomeListener");
@@ -59,19 +64,41 @@ public class FragmentHome extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        final View view = inflater.inflate(R.layout.fragment_home, container, false);
+        View view = inflater.inflate(R.layout.fragment_home, container, false);
 
         recyclerView = view.findViewById(R.id.home_recyclerview);
         textView = view.findViewById(R.id.home_textview);
+        progressBar = view.findViewById(R.id.home_progressbar);
+        swipeRefresh = view.findViewById(R.id.home_parent_refresh);
+        swipeRefresh.setOnRefreshListener(this);
+        swipeRefresh.setColorSchemeResources(R.color.colorPrimary,
+                android.R.color.holo_blue_dark, android.R.color.holo_orange_dark, android.R.color.holo_green_dark
+        );
+        swipeRefresh.post(new Runnable() {
+            @Override
+            public void run() {
+            swipeRefresh.setRefreshing(true);
+                getData();
+            }
+        });
 
+        listener.onInputHomeSent("home");
+        progressBar.setVisibility(View.VISIBLE);
+        return view;
+    }
+
+    private void getData() {
         List<String> list = new ArrayList<>();
         list.add("0");
-        HandlerServer handlerServer = new HandlerServer(getActivity().getApplicationContext(),"GET_HOME_DATA");
-        synchronized (getActivity().getApplicationContext()){
+        HandlerServer handlerServer = new HandlerServer(getActivity().getApplicationContext(), "GET_HOME_DATA");
+        synchronized (getActivity().getApplicationContext()) {
             handlerServer.getList(new VolleyCallback() {
                 @Override
                 public void onFailed(String result) {
                     Log.e(TAG, "onFailed: " + result);
+                    textView.setVisibility(View.VISIBLE);
+                    progressBar.setVisibility(View.GONE);
+                    swipeRefresh.setRefreshing(false);
                 }
 
                 @Override
@@ -81,44 +108,42 @@ public class FragmentHome extends Fragment {
 
                 @Override
                 public void onJsonArray(JSONArray jsonArray) {
-
                 }
             }, list);
         }
-
-
-        return view;
     }
 
     private void tampilankanSuccess(final List<ModelHomeJadi> result, final String lastID) {
         this.lastID = lastID;
         this.modelHomes = result;
-        if (result.isEmpty()){
+        if (result.isEmpty()) {
             textView.setVisibility(View.VISIBLE);
             recyclerView.setVisibility(View.GONE);
         } else {
             textView.setVisibility(View.GONE);
             final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity().getApplicationContext());
             recyclerView.setLayoutManager(linearLayoutManager);
-            adapterHome = new AdapterHome(modelHomes,getActivity().getApplicationContext(), recyclerView);
+            adapterHome = new AdapterHome(modelHomes, getActivity().getApplicationContext(), recyclerView);
             recyclerView.setItemAnimator(new DefaultItemAnimator());
             recyclerView.setAdapter(adapterHome);
             recyclerView.setVisibility(View.VISIBLE);
+            progressBar.setVisibility(View.GONE);
+            swipeRefresh.setRefreshing(false);
 
             adapterHome.setOnLoadMoreListener(new OnLoadMoreListener() {
                 @Override
                 public void onLoadMore() {
                     modelHomes.add(null);
-                    adapterHome.notifyItemInserted(modelHomes.size()-1);
+                    adapterHome.notifyItemInserted(modelHomes.size() - 1);
                     new Handler().postDelayed(new Runnable() {
                         @Override
                         public void run() {
-                            modelHomes.remove(modelHomes.size()-1);
+                            modelHomes.remove(modelHomes.size() - 1);
                             adapterHome.notifyItemRemoved(modelHomes.size());
                             loadMoreData();
 
                         }
-                    }, 2000);
+                    }, 1000);
                 }
             });
             Log.e(TAG, "tampilankanSuccess: " + lastID);
@@ -127,11 +152,11 @@ public class FragmentHome extends Fragment {
     }
 
     private void loadMoreData() {
-//        listener.onInputHomeSent(lastID);
         List<String> params = new ArrayList<>();
         params.add(lastID);
-            HandlerServer handlerServer = new HandlerServer(getActivity(),"GET_MORE_DATA");
-            synchronized (getActivity()){
+        HandlerServer handlerServer = new HandlerServer(getActivity().getApplicationContext(), "GET_MORE_DATA");
+        if (getActivity().getApplicationContext() != null) {
+            synchronized (getActivity()) {
                 handlerServer.getList(new VolleyCallback() {
                     @Override
                     public void onFailed(String result) {
@@ -165,17 +190,23 @@ public class FragmentHome extends Fragment {
                             adapterHome.setLoaded();
                             lastID = dataServer.getString("id");
                             Log.e(TAG, "onJsonArray: " + lastID);
-                        } catch (JSONException e){
+                        } catch (JSONException e) {
                             e.printStackTrace();
                         }
                     }
                 }, params);
             }
+        }
     }
 
-    public void updateData(List<ModelHomeJadi> newData){
-        Log.e(TAG, "updateData: " + newData);
+    @Override
+    public void onRefresh() {
+        getData();
     }
+
+//    public void updateData(List<ModelHomeJadi> newData){
+//        Log.e(TAG, "updateData: " + newData);
+//    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {

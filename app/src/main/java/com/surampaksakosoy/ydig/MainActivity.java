@@ -6,9 +6,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -27,6 +29,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
 import com.surampaksakosoy.ydig.fragment.FragmentHome;
+import com.surampaksakosoy.ydig.fragment.FragmentPanduan;
 import com.surampaksakosoy.ydig.handlers.DBHandler;
 import com.surampaksakosoy.ydig.handlers.ServerHandler;
 
@@ -37,7 +40,7 @@ import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, FragmentHome.FragmentHomeListener {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, FragmentHome.FragmentHomeListener, FragmentPanduan.FragmentPanduanListener {
 
     private String SUMBER_LOGIN, ID_LOGIN, NAMA, EMAIL;
     private DBHandler dbHandler;
@@ -45,7 +48,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private DrawerLayout drawerLayout;
     private Toolbar toolbar;
     private NavigationView navigationView;
-    private FragmentHome fragmentHome;
+    private String activeFragment;
+    private boolean backPressExit = false;
     private static final String TAG = "MainActivity";
 
     @Override
@@ -57,28 +61,30 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         initListener();
         checkLocalDB();
 
+        urusanDrawer(savedInstanceState);
+    }
+
+    private void urusanDrawer(Bundle savedInstanceState) {
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar,
                 R.string.navigation, R.string.navigation);
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
 
-//        getHomeData(savedInstanceState);
-        if (savedInstanceState == null){
+        if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container,
                     new FragmentHome()).commit();
             navigationView.setCheckedItem(R.id.nav_home);
         }
-
     }
 
-    private void getHomeData(Bundle savedInstanceState) {
-        ServerHandler serverHandler = new ServerHandler(this,"GET_HOME_DATA");
-        List<String> params = new ArrayList<>();
-        synchronized (this){
-            serverHandler.sendData(params);
-        }
-
-    }
+//    private void getHomeData(Bundle savedInstanceState) {
+//        ServerHandler serverHandler = new ServerHandler(this,"GET_HOME_DATA");
+//        List<String> params = new ArrayList<>();
+//        synchronized (this){
+//            serverHandler.sendData(params);
+//        }
+//
+//    }
 //    public void responseGetHomeDataFailed(String pesan) {
 //        Toast.makeText(this, pesan, Toast.LENGTH_SHORT).show();
 //    }
@@ -89,41 +95,51 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void onBackPressed() {
-        if (drawerLayout.isDrawerOpen(GravityCompat.START)){
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawer(GravityCompat.START);
-        }else{
-            super.onBackPressed();
+        } else {
+            if (backPressExit) {
+                super.onBackPressed();
+            }
+
+            this.backPressExit = true;
+            Toast.makeText(this, "Tekan lagi untuk keluar", Toast.LENGTH_SHORT).show();
+
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    backPressExit = false;
+                }
+            }, 2000);
         }
     }
 
-    private void initView(){
+    private void initView() {
         drawerLayout = findViewById(R.id.main_drawer_layout);
-        toolbar =findViewById(R.id.main_toolbar);
+        toolbar = findViewById(R.id.main_toolbar);
         setSupportActionBar(toolbar);
         navigationView = findViewById(R.id.main_navigation);
     }
 
     private void initListener() {
         dbHandler = new DBHandler(this);
-
+        navigationView.setNavigationItemSelectedListener(this);
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
                 .build();
         googleSignInClient = GoogleSignIn.getClient(this, gso);
-
-        navigationView.setNavigationItemSelectedListener(this);
     }
 
-    private void checkLocalDB(){
+    private void checkLocalDB() {
         ArrayList<HashMap<String, String>> userDB = dbHandler.getUser(1);
-        for (Map<String, String> map :  userDB){
+        for (Map<String, String> map : userDB) {
             SUMBER_LOGIN = map.get("sumber_login");
             ID_LOGIN = map.get("id_login");
             NAMA = map.get("nama");
             EMAIL = map.get("email");
         }
 
-        if (ID_LOGIN == null){
+        if (ID_LOGIN == null) {
             prosesLogout();
         } else {
             loginSuccess();
@@ -137,23 +153,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void percantikNavigasiHeader() {
         final View view = navigationView.getHeaderView(0);
         final CircleImageView imageView = view.findViewById(R.id.nav_image_view);
-        TextView textViewNama  = view.findViewById(R.id.nav_name);
+        TextView textViewNama = view.findViewById(R.id.nav_name);
         TextView textViewEmail = view.findViewById(R.id.nav_email);
 
         textViewNama.setText(NAMA);
         textViewEmail.setText(EMAIL);
 
         Uri photo = null;
-        if (SUMBER_LOGIN.equals("FACEBOOK")){
+        if (SUMBER_LOGIN.equals("FACEBOOK")) {
             int dimensionPixelSize = getResources()
                     .getDimensionPixelSize(com.facebook.R.dimen.com_facebook_profilepictureview_preset_size_large);
-            photo = ImageRequest.getProfilePictureUri(ID_LOGIN, dimensionPixelSize , dimensionPixelSize );
+            photo = ImageRequest.getProfilePictureUri(ID_LOGIN, dimensionPixelSize, dimensionPixelSize);
             Glide.with(this).load(photo).diskCacheStrategy(DiskCacheStrategy.RESOURCE).into(imageView);
-        } else if (SUMBER_LOGIN.equals("GOOGLE")){
+        } else if (SUMBER_LOGIN.equals("GOOGLE")) {
             GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
-            if (account != null){
+            if (account != null) {
                 photo = account.getPhotoUrl();
-                if (photo!=null){
+                if (photo != null) {
                     Glide.with(this).load(photo).diskCacheStrategy(DiskCacheStrategy.RESOURCE).into(imageView);
                 }
             }
@@ -166,7 +182,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         list.add(ID_LOGIN);
         list.add(String.valueOf(photo));
         ServerHandler serverHandler = new ServerHandler(this, "MAIN_SAVE_PHOTO");
-        synchronized (this){
+        synchronized (this) {
             serverHandler.sendData(list);
         }
     }
@@ -174,8 +190,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void prosesLogout() {
         dbHandler.deleteDB();
 
-        if (SUMBER_LOGIN != null){
-            if (SUMBER_LOGIN.equals("GOOGLE")){
+        if (SUMBER_LOGIN != null) {
+            if (SUMBER_LOGIN.equals("GOOGLE")) {
                 googleSignInClient.signOut()
                         .addOnCompleteListener(this, new OnCompleteListener<Void>() {
                             @Override
@@ -196,7 +212,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         ServerHandler serverHandler = new ServerHandler(this, "MAIN_LOGOUT");
         List<String> list = new ArrayList<>();
         list.add(ID_LOGIN);
-        synchronized (this){
+        synchronized (this) {
             serverHandler.sendData(list);
         }
         Intent intent = new Intent(this, LoginActivity.class);
@@ -207,10 +223,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-        switch (menuItem.getItemId()){
+        switch (menuItem.getItemId()) {
             case R.id.nav_home:
-                getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container,
-                        new FragmentHome()).commit();
+                Log.e(TAG, "onNavigationItemSelected: " + activeFragment);
+                if (!activeFragment.equals("home")) {
+                    getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container,
+                            new FragmentHome()).commit();
+                }
+                break;
+            case R.id.nav_panduan:
+                Log.e(TAG, "onNavigationItemSelected: " + activeFragment);
+                if (!activeFragment.equals("panduan")) {
+                    getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container,
+                            new FragmentPanduan()).commit();
+                }
                 break;
             case R.id.nav_news:
                 Toast.makeText(this, "Info Kajian", Toast.LENGTH_SHORT).show();
@@ -228,11 +254,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 prosesLogout();
                 break;
         }
-        return false;
+        drawerLayout.closeDrawer(GravityCompat.START);
+        return true;
     }
 
     @Override
     public void onInputHomeSent(String input) {
-        Log.e(TAG, "onInputHomeSent: " + input);
+        activeFragment = input;
+    }
+
+    @Override
+    public void onInputPanduanSent(String input) {
+        activeFragment = input;
     }
 }

@@ -10,6 +10,10 @@
             android:icon="@drawable/ic_home"
             android:title="@string/home" />
         <item
+            android:id="@+id/nav_panduan"
+            android:icon="@drawable/ic_insert"
+            android:title="@string/panduan" />
+        <item
             android:id="@+id/nav_news"
             android:icon="@drawable/ic_new_release"
             android:title="@string/info_kajian" />

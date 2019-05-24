@@ -15,6 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.surampaksakosoy.ydig.R;
 import com.surampaksakosoy.ydig.interfaces.OnLoadMoreListener;
@@ -131,6 +132,7 @@ public class AdapterHome extends RecyclerView.Adapter {
                     ((ViewItemHolder) holder).linearLayoutTypeImage.setVisibility(View.VISIBLE);
                     ((ViewItemHolder) holder).linearLayoutTypeAudio.setVisibility(View.GONE);
                     ((ViewItemHolder) holder).linearLayoutTypeVideo.setVisibility(View.GONE);
+                    Glide.with(context).load(dataset.get(position).getData()).into(((ViewItemHolder) holder).imageView);
                     break;
                 case 2:
                     ((ViewItemHolder) holder).linearLayoutTypeText.setVisibility(View.GONE);
@@ -168,17 +170,17 @@ public class AdapterHome extends RecyclerView.Adapter {
     }
 
     class ViewItemHolder extends RecyclerView.ViewHolder{
+        ImageView imageView;
         LinearLayout linearLayoutTypeText, linearLayoutTypeImage, linearLayoutTypeAudio, linearLayoutTypeVideo;
 
         TextView textViewJudul, textViewUploadDate;
         TextView textViewArab, textViewArti;
 
-        private ImageView imageView;
 
-        private FloatingActionButton floatingActionButton;
-        private SeekBar seekBar;
+        FloatingActionButton floatingActionButton;
+        SeekBar seekBar;
 
-        private VideoView videoView;
+        VideoView videoView;
 
         TextView textViewKontent;
 
