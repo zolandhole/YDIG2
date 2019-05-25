@@ -4,11 +4,13 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.VideoView;
 
 import androidx.annotation.NonNull;
@@ -81,7 +83,7 @@ public class AdapterHome extends RecyclerView.Adapter {
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, final int position) {
         if (holder instanceof LoadingViewHolder){
             ((LoadingViewHolder) holder).progressBar.setIndeterminate(true);
         } else if (holder instanceof ViewItemHolder){
@@ -119,6 +121,13 @@ public class AdapterHome extends RecyclerView.Adapter {
             } else {
                 ((ViewItemHolder) holder).textViewKontent.setVisibility(View.GONE);
             }
+
+            ((ViewItemHolder) holder).button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Toast.makeText(context, String.valueOf(dataset.get(position).getId()), Toast.LENGTH_SHORT).show();
+                }
+            });
 
             switch (dataset.get(position).getType()) {
                 case 0:
@@ -183,6 +192,7 @@ public class AdapterHome extends RecyclerView.Adapter {
         VideoView videoView;
 
         TextView textViewKontent;
+        Button button;
 
         ViewItemHolder(@NonNull View itemView) {
             super(itemView);
@@ -205,6 +215,7 @@ public class AdapterHome extends RecyclerView.Adapter {
             videoView = itemView.findViewById(R.id.video);
 
             textViewKontent = itemView.findViewById(R.id.kontent);
+            button = itemView.findViewById(R.id.home_button);
         }
     }
 
