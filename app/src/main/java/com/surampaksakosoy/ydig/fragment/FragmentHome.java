@@ -128,7 +128,6 @@ public class FragmentHome extends Fragment implements SwipeRefreshLayout.OnRefre
     private void tidakAdaData(){
         textView.setVisibility(View.VISIBLE);
         progressBar.setVisibility(View.GONE);
-//        swipeRefresh.setRefreshing(false);
     }
 
     private void tampilankanSuccess(final List<ModelHomeJadi> result, final String lastID) {

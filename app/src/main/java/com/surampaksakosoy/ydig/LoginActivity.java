@@ -30,9 +30,11 @@ import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.material.snackbar.Snackbar;
 import com.surampaksakosoy.ydig.handlers.DBHandler;
 import com.surampaksakosoy.ydig.handlers.ServerHandler;
 import com.surampaksakosoy.ydig.models.ModelUser;
+import com.surampaksakosoy.ydig.utils.NoInternetConnection;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -51,7 +53,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private SignInButton signInGoogle;
     private GoogleApiClient googleApiClient;
     private static final int REQ_GOOLE = 9001;
-
+    private NoInternetConnection internetConnection;
     private CallbackManager callbackManager;
     private LoginButton signiInFacebook;
     private Button button_facebook, button_google;
@@ -70,16 +72,26 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         setContentView(R.layout.activity_login);
 
         initView();
-        initListener();
-        anotherOnClick();
-        loginWithFacebook();
+
+        internetConnection = new NoInternetConnection(this);
+        if (!internetConnection.isNetworkAvailable()){
+            keMainActivity();
+        } else {
+            initListener();
+            anotherOnClick();
+            loginWithFacebook();
+        }
     }
 
     private void anotherOnClick(){
         button_facebook.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                signiInFacebook.performClick();
+                if (internetConnection.isNetworkAvailable()){
+                    signiInFacebook.performClick();
+                } else {
+                    tidakAdaInternet();
+                }
             }
         });
         button_google.setOnClickListener(new View.OnClickListener() {
@@ -92,43 +104,43 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     private void loginWithFacebook() {
 
-        signiInFacebook.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
-            @Override
-            public void onSuccess(LoginResult loginResult) {
-                GraphRequest request =GraphRequest.newMeRequest(loginResult.getAccessToken(),
-                        new GraphRequest.GraphJSONObjectCallback() {
-                            @Override
-                            public void onCompleted(JSONObject object, GraphResponse response) {
-                                try {
-                                    ID_LOGIN = object.getString("id");
-                                    NAMA = object.getString("name");
-                                    EMAIL = object.getString("email");
-                                    SUMBER_LOGIN = "FACEBOOK";
-                                    storeToLocalDB();
-                                } catch (JSONException e) {
-                                    Log.e(TAG, "onCompleted: "+ e);
-                                    e.printStackTrace();
+            signiInFacebook.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+                @Override
+                public void onSuccess(LoginResult loginResult) {
+                    GraphRequest request =GraphRequest.newMeRequest(loginResult.getAccessToken(),
+                            new GraphRequest.GraphJSONObjectCallback() {
+                                @Override
+                                public void onCompleted(JSONObject object, GraphResponse response) {
+                                    try {
+                                        ID_LOGIN = object.getString("id");
+                                        NAMA = object.getString("name");
+                                        EMAIL = object.getString("email");
+                                        SUMBER_LOGIN = "FACEBOOK";
+                                        storeToLocalDB();
+                                    } catch (JSONException e) {
+                                        Log.e(TAG, "onCompleted: "+ e);
+                                        e.printStackTrace();
+                                    }
                                 }
-                            }
-                        });
-                Bundle parameters= new Bundle();
-                parameters.putString("fields", "id,name,email,gender,birthday,link,location");
-                request.setParameters(parameters);
-                request.executeAsync();
-            }
+                            });
+                    Bundle parameters= new Bundle();
+                    parameters.putString("fields", "id,name,email,gender,birthday,link,location");
+                    request.setParameters(parameters);
+                    request.executeAsync();
+                }
 
-            @Override
-            public void onCancel() {
-                Toast.makeText(LoginActivity.this, "Anda Membatalkan login dengan Facebook", Toast.LENGTH_SHORT).show();
-                updateUI();
-            }
+                @Override
+                public void onCancel() {
+                    Toast.makeText(LoginActivity.this, "Anda Membatalkan login dengan Facebook", Toast.LENGTH_SHORT).show();
+                    updateUI();
+                }
 
-            @Override
-            public void onError(FacebookException error) {
-                Log.e(TAG, "onError: "+ error);
-                updateUI();
-            }
-        });
+                @Override
+                public void onError(FacebookException error) {
+                    Log.e(TAG, "onError: "+ error);
+                    updateUI();
+                }
+            });
     }
 
     private void initListener() {
@@ -172,8 +184,16 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     }
 
     private void signIn(){
-        Intent intent = Auth.GoogleSignInApi.getSignInIntent(googleApiClient);
-        startActivityForResult(intent,REQ_GOOLE);
+        if (internetConnection.isNetworkAvailable()){
+            Intent intent = Auth.GoogleSignInApi.getSignInIntent(googleApiClient);
+            startActivityForResult(intent,REQ_GOOLE);
+        } else {
+            tidakAdaInternet();
+        }
+    }
+
+    private void tidakAdaInternet() {
+        Snackbar.make(findViewById(R.id.layout_login),"Tidak terhubung Internet", Snackbar.LENGTH_LONG).show();
     }
 
     private void handleResult(GoogleSignInResult result){

@@ -164,7 +164,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             EMAIL = map.get("email");
         }
 
-        if (ID_LOGIN == null) {
+        if (ID_LOGIN == null && !internetConnection.isNetworkAvailable()) {
+            getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container,
+                    new FragmentPanduan()).commit();
+        } else if (ID_LOGIN == null && internetConnection.isNetworkAvailable()){
             prosesLogout();
         } else {
             loginSuccess();
@@ -189,13 +192,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             int dimensionPixelSize = getResources()
                     .getDimensionPixelSize(com.facebook.R.dimen.com_facebook_profilepictureview_preset_size_large);
             photo = ImageRequest.getProfilePictureUri(ID_LOGIN, dimensionPixelSize, dimensionPixelSize);
-            Glide.with(this).load(photo).diskCacheStrategy(DiskCacheStrategy.RESOURCE).into(imageView);
+            if (photo != null){
+                Glide.with(this).load(photo).diskCacheStrategy(DiskCacheStrategy.RESOURCE).into(imageView);
+            } else {
+                imageView.setImageResource(R.drawable.avatar);
+            }
         } else if (SUMBER_LOGIN.equals("GOOGLE")) {
             GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
             if (account != null) {
                 photo = account.getPhotoUrl();
                 if (photo != null) {
                     Glide.with(this).load(photo).diskCacheStrategy(DiskCacheStrategy.RESOURCE).into(imageView);
+                } else {
+                    imageView.setImageResource(R.drawable.avatar);
                 }
             }
         }
@@ -251,11 +260,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Log.e(TAG, "onNavigationItemSelected: " + activeFragment);
         switch (menuItem.getItemId()) {
             case R.id.nav_home:
-                if (internetConnection.isNetworkAvailable()) {
+                if (internetConnection.isNetworkAvailable() && ID_LOGIN != null) {
                     if (!activeFragment.equals("home")) {
                         getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container,
                                 new FragmentHome()).commit();
                     }
+                } else if (ID_LOGIN == null && internetConnection.isNetworkAvailable()){
+                        prosesLogout();
                 } else {
                     noConnection();
                 }
