@@ -96,22 +96,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-//    private void getHomeData(Bundle savedInstanceState) {
-//        ServerHandler serverHandler = new ServerHandler(this,"GET_HOME_DATA");
-//        List<String> params = new ArrayList<>();
-//        synchronized (this){
-//            serverHandler.sendData(params);
-//        }
-//
-//    }
-//    public void responseGetHomeDataFailed(String pesan) {
-//        Toast.makeText(this, pesan, Toast.LENGTH_SHORT).show();
-//    }
-//    public void responseGetHomeDataSuccess(List<ModelHomeJadi> list) {
-//        fragmentHome = new FragmentHome();
-//        fragmentHome.updateData(list);
-//    }
-
     @Override
     public void onBackPressed() {
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
@@ -167,7 +151,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (ID_LOGIN == null && !internetConnection.isNetworkAvailable()) {
             getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container,
                     new FragmentPanduan()).commit();
-        } else if (ID_LOGIN == null && internetConnection.isNetworkAvailable()){
+        } else if (ID_LOGIN == null && internetConnection.isNetworkAvailable()) {
             prosesLogout();
         } else {
             loginSuccess();
@@ -192,7 +176,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             int dimensionPixelSize = getResources()
                     .getDimensionPixelSize(com.facebook.R.dimen.com_facebook_profilepictureview_preset_size_large);
             photo = ImageRequest.getProfilePictureUri(ID_LOGIN, dimensionPixelSize, dimensionPixelSize);
-            if (photo != null){
+            if (photo != null) {
                 Glide.with(this).load(photo).diskCacheStrategy(DiskCacheStrategy.RESOURCE).into(imageView);
             } else {
                 imageView.setImageResource(R.drawable.avatar);
@@ -265,8 +249,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container,
                                 new FragmentHome()).commit();
                     }
-                } else if (ID_LOGIN == null && internetConnection.isNetworkAvailable()){
-                        prosesLogout();
+                } else if (ID_LOGIN == null && internetConnection.isNetworkAvailable()) {
+                    prosesLogout();
                 } else {
                     noConnection();
                 }
@@ -306,6 +290,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void onInputPanduanSent(String input) {
         activeFragment = input;
     }
-
-
+    //    public void responseGetHomeDataSuccess(List<ModelHomeJadi> list) {
+//        fragmentHome = new FragmentHome();
+//        fragmentHome.updateData(list);
+//    }
 }
