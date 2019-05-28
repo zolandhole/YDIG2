@@ -28,10 +28,12 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.snackbar.Snackbar;
 import com.surampaksakosoy.ydig.fragment.FragmentHome;
 import com.surampaksakosoy.ydig.fragment.FragmentPanduan;
 import com.surampaksakosoy.ydig.handlers.DBHandler;
 import com.surampaksakosoy.ydig.handlers.ServerHandler;
+import com.surampaksakosoy.ydig.utils.NoInternetConnection;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -50,26 +52,43 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private NavigationView navigationView;
     private String activeFragment;
     private boolean backPressExit = false;
+    private NoInternetConnection internetConnection;
     private static final String TAG = "MainActivity";
 
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         initView();
         initListener();
-        checkLocalDB();
 
-        urusanDrawer(savedInstanceState);
+        checkInternetConnection(savedInstanceState);
+        checkLocalDB();
     }
 
-    private void urusanDrawer(Bundle savedInstanceState) {
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar,
-                R.string.navigation, R.string.navigation);
-        drawerLayout.addDrawerListener(toggle);
-        toggle.syncState();
+    private void checkInternetConnection(final Bundle savedInstanceState) {
+        if (internetConnection.isNetworkAvailable()) {
+            keHomeFragment(savedInstanceState);
+        } else {
+            kePanduanFragment(savedInstanceState);
+            noConnection();
+        }
+    }
 
+    private void noConnection() {
+        Snackbar.make(findViewById(R.id.main_drawer_layout), "Tidak terhubung ke Internet", Snackbar.LENGTH_LONG).show();
+    }
+
+    private void kePanduanFragment(Bundle savedInstanceState) {
+        if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container,
+                    new FragmentPanduan()).commit();
+            navigationView.setCheckedItem(R.id.nav_panduan);
+        }
+    }
+
+    private void keHomeFragment(Bundle savedInstanceState) {
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container,
                     new FragmentHome()).commit();
@@ -122,12 +141,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void initListener() {
+        internetConnection = new NoInternetConnection(this);
         dbHandler = new DBHandler(this);
         navigationView.setNavigationItemSelectedListener(this);
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
                 .build();
         googleSignInClient = GoogleSignIn.getClient(this, gso);
+
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar,
+                R.string.navigation, R.string.navigation);
+        drawerLayout.addDrawerListener(toggle);
+        toggle.syncState();
     }
 
     private void checkLocalDB() {
@@ -223,16 +248,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+        Log.e(TAG, "onNavigationItemSelected: " + activeFragment);
         switch (menuItem.getItemId()) {
             case R.id.nav_home:
-                Log.e(TAG, "onNavigationItemSelected: " + activeFragment);
-                if (!activeFragment.equals("home")) {
-                    getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container,
-                            new FragmentHome()).commit();
+                if (internetConnection.isNetworkAvailable()) {
+                    if (!activeFragment.equals("home")) {
+                        getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container,
+                                new FragmentHome()).commit();
+                    }
+                } else {
+                    noConnection();
                 }
                 break;
             case R.id.nav_panduan:
-                Log.e(TAG, "onNavigationItemSelected: " + activeFragment);
                 if (!activeFragment.equals("panduan")) {
                     getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container,
                             new FragmentPanduan()).commit();
@@ -267,4 +295,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void onInputPanduanSent(String input) {
         activeFragment = input;
     }
+
+
 }

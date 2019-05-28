@@ -1,5 +1,6 @@
 package com.surampaksakosoy.ydig.fragment;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
@@ -9,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -24,6 +26,7 @@ import com.surampaksakosoy.ydig.handlers.HandlerServer;
 import com.surampaksakosoy.ydig.interfaces.OnLoadMoreListener;
 import com.surampaksakosoy.ydig.interfaces.VolleyCallback;
 import com.surampaksakosoy.ydig.models.ModelHomeJadi;
+import com.surampaksakosoy.ydig.utils.NoInternetConnection;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -40,11 +43,17 @@ public class FragmentHome extends Fragment implements SwipeRefreshLayout.OnRefre
     private String lastID;
     private List<ModelHomeJadi> modelHomes;
     private ProgressBar progressBar;
-    private SwipeRefreshLayout swipeRefresh;
+    @SuppressLint("StaticFieldLeak")
+    private static SwipeRefreshLayout swipeRefresh;
     private static final String TAG = "FragmentHome";
     private FragmentHomeListener listener;
+    private NoInternetConnection internetConnection;
 
     public FragmentHome() {
+    }
+
+    public static void resultError() {
+        swipeRefresh.setRefreshing(false);
     }
 
     public interface FragmentHomeListener {
@@ -70,6 +79,7 @@ public class FragmentHome extends Fragment implements SwipeRefreshLayout.OnRefre
         textView = view.findViewById(R.id.home_textview);
         progressBar = view.findViewById(R.id.home_progressbar);
         swipeRefresh = view.findViewById(R.id.home_parent_refresh);
+        internetConnection = new NoInternetConnection(getActivity().getApplicationContext());
         swipeRefresh.setOnRefreshListener(this);
         swipeRefresh.setColorSchemeResources(R.color.colorPrimary,
                 android.R.color.holo_blue_dark, android.R.color.holo_orange_dark, android.R.color.holo_green_dark
@@ -77,8 +87,12 @@ public class FragmentHome extends Fragment implements SwipeRefreshLayout.OnRefre
         swipeRefresh.post(new Runnable() {
             @Override
             public void run() {
-            swipeRefresh.setRefreshing(true);
-                getData();
+                if (internetConnection.isNetworkAvailable()){
+                    swipeRefresh.setRefreshing(true);
+                    getData();
+                } else {
+                    tidakAdaData();
+                }
             }
         });
 
@@ -96,9 +110,7 @@ public class FragmentHome extends Fragment implements SwipeRefreshLayout.OnRefre
                 @Override
                 public void onFailed(String result) {
                     Log.e(TAG, "onFailed: " + result);
-                    textView.setVisibility(View.VISIBLE);
-                    progressBar.setVisibility(View.GONE);
-                    swipeRefresh.setRefreshing(false);
+                    tidakAdaData();
                 }
 
                 @Override
@@ -111,6 +123,12 @@ public class FragmentHome extends Fragment implements SwipeRefreshLayout.OnRefre
                 }
             }, list);
         }
+    }
+
+    private void tidakAdaData(){
+        textView.setVisibility(View.VISIBLE);
+        progressBar.setVisibility(View.GONE);
+//        swipeRefresh.setRefreshing(false);
     }
 
     private void tampilankanSuccess(final List<ModelHomeJadi> result, final String lastID) {
@@ -133,17 +151,20 @@ public class FragmentHome extends Fragment implements SwipeRefreshLayout.OnRefre
             adapterHome.setOnLoadMoreListener(new OnLoadMoreListener() {
                 @Override
                 public void onLoadMore() {
-                    modelHomes.add(null);
-                    adapterHome.notifyItemInserted(modelHomes.size() - 1);
-                    new Handler().postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            modelHomes.remove(modelHomes.size() - 1);
-                            adapterHome.notifyItemRemoved(modelHomes.size());
-                            loadMoreData();
-
-                        }
-                    }, 1000);
+                    if (internetConnection.isNetworkAvailable()){
+                        modelHomes.add(null);
+                        adapterHome.notifyItemInserted(modelHomes.size() - 1);
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                modelHomes.remove(modelHomes.size() - 1);
+                                adapterHome.notifyItemRemoved(modelHomes.size());
+                                loadMoreData();
+                            }
+                        }, 1000);
+                    } else {
+                        Toast.makeText(getActivity().getApplicationContext(), "Tidak ada koneksi Internet", Toast.LENGTH_SHORT).show();
+                    }
                 }
             });
             Log.e(TAG, "tampilankanSuccess: " + lastID);

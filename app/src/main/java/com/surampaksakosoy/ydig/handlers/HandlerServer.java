@@ -2,6 +2,7 @@ package com.surampaksakosoy.ydig.handlers;
 
 import android.content.Context;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -9,6 +10,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.surampaksakosoy.ydig.fragment.FragmentHome;
 import com.surampaksakosoy.ydig.models.ModelHomeJadi;
 import com.surampaksakosoy.ydig.utils.PublicAddress;
 import com.surampaksakosoy.ydig.interfaces.VolleyCallback;
@@ -83,6 +85,10 @@ public class HandlerServer {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         Log.e(TAG, "onErrorResponse: " + error);
+                        if (aktifitas.equals("GET_HOME_DATA") || aktifitas.equals("GET_MORE_DATA")){
+                            FragmentHome.resultError();
+                        }
+                        Toast.makeText(context, "Tidak ada koneksi Internet", Toast.LENGTH_SHORT).show();
                     }
                 }){
             @Override
