@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,7 +44,6 @@ public class FragmentHome extends Fragment implements SwipeRefreshLayout.OnRefre
     private ProgressBar progressBar;
     @SuppressLint("StaticFieldLeak")
     private static SwipeRefreshLayout swipeRefresh;
-    private static final String TAG = "FragmentHome";
     private FragmentHomeListener listener;
     private NoInternetConnection internetConnection;
 
@@ -87,7 +85,7 @@ public class FragmentHome extends Fragment implements SwipeRefreshLayout.OnRefre
         swipeRefresh.post(new Runnable() {
             @Override
             public void run() {
-                if (internetConnection.isNetworkAvailable()){
+                if (internetConnection.isNetworkAvailable()) {
                     swipeRefresh.setRefreshing(true);
                     getData();
                 } else {
@@ -109,29 +107,49 @@ public class FragmentHome extends Fragment implements SwipeRefreshLayout.OnRefre
             handlerServer.getList(new VolleyCallback() {
                 @Override
                 public void onFailed(String result) {
-                    Log.e(TAG, "onFailed: " + result);
                     tidakAdaData();
+                    Toast.makeText(getActivity().getApplicationContext(), result, Toast.LENGTH_SHORT).show();
                 }
 
                 @Override
-                public void onSuccess(List<ModelHomeJadi> result, String lastID) {
-                    tampilankanSuccess(result, lastID);
-                }
-
-                @Override
-                public void onJsonArray(JSONArray jsonArray) {
+                public void onSuccess(JSONArray jsonArray) {
+                    prosessResult(jsonArray);
                 }
             }, list);
         }
     }
 
-    private void tidakAdaData(){
-        textView.setVisibility(View.VISIBLE);
+    private void prosessResult(JSONArray jsonArray) {
+        List<ModelHomeJadi> list = new ArrayList<>();
+        try {
+            JSONObject dataServer = null;
+            for (int i = 0; i < jsonArray.length(); i++) {
+                dataServer = jsonArray.getJSONObject(i);
+                JSONObject isiData = dataServer.getJSONObject("data");
+                list.add(new ModelHomeJadi(
+                        Integer.parseInt(dataServer.getString("id")),
+                        Integer.parseInt(isiData.getString("type")),
+                        isiData.getString("data"),
+                        isiData.getString("videoPath"),
+                        isiData.getString("judul"),
+                        isiData.getString("kontent"),
+                        isiData.getString("arab"),
+                        isiData.getString("arti"),
+                        dataServer.getString("upload_date")
+                ));
+            }
+            lastID = dataServer.getString("id");
+            tampilankanSuccess(list);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void tidakAdaData() {
         progressBar.setVisibility(View.GONE);
     }
 
-    private void tampilankanSuccess(final List<ModelHomeJadi> result, final String lastID) {
-        this.lastID = lastID;
+    private void tampilankanSuccess(List<ModelHomeJadi> result) {
         this.modelHomes = result;
         if (result.isEmpty()) {
             textView.setVisibility(View.VISIBLE);
@@ -150,7 +168,7 @@ public class FragmentHome extends Fragment implements SwipeRefreshLayout.OnRefre
             adapterHome.setOnLoadMoreListener(new OnLoadMoreListener() {
                 @Override
                 public void onLoadMore() {
-                    if (internetConnection.isNetworkAvailable()){
+                    if (internetConnection.isNetworkAvailable()) {
                         modelHomes.add(null);
                         adapterHome.notifyItemInserted(modelHomes.size() - 1);
                         new Handler().postDelayed(new Runnable() {
@@ -166,7 +184,6 @@ public class FragmentHome extends Fragment implements SwipeRefreshLayout.OnRefre
                     }
                 }
             });
-            Log.e(TAG, "tampilankanSuccess: " + lastID);
         }
 
     }
@@ -180,14 +197,12 @@ public class FragmentHome extends Fragment implements SwipeRefreshLayout.OnRefre
                 handlerServer.getList(new VolleyCallback() {
                     @Override
                     public void onFailed(String result) {
+                        tidakAdaData();
+                        Toast.makeText(getActivity().getApplicationContext(), result, Toast.LENGTH_SHORT).show();
                     }
 
                     @Override
-                    public void onSuccess(List<ModelHomeJadi> result, String lastID) {
-                    }
-
-                    @Override
-                    public void onJsonArray(JSONArray jsonArray) {
+                    public void onSuccess(JSONArray jsonArray) {
                         try {
                             JSONObject dataServer = null;
                             for (int i = 0; i < jsonArray.length(); i++) {
@@ -209,7 +224,6 @@ public class FragmentHome extends Fragment implements SwipeRefreshLayout.OnRefre
                             adapterHome.notifyDataSetChanged();
                             adapterHome.setLoaded();
                             lastID = dataServer.getString("id");
-                            Log.e(TAG, "onJsonArray: " + lastID);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }

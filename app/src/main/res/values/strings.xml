@@ -35,4 +35,7 @@
     <string name="arti_here">arti here</string>
     <string name="konten_here">Konten here</string>
     <string name="panduan">panduan</string>
+    <string name="panduan_sholat">Panduan Sholat</string>
+    <string name="description_panduan">Sungguh, shalat itu adalah kewajiban yang ditentukan waktunya atas orang-orang yang beriman. \nQ.S. An-Nisa/4: 103</string>
+    <string name="gagal_memuat_gambar">Gagal memuat Gambar</string>
 </resources>
