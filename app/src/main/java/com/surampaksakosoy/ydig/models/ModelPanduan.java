@@ -2,13 +2,12 @@ package com.surampaksakosoy.ydig.models;
 
 public class ModelPanduan {
     private int id;
-    private String judul, deskripsi, image_path, upload_date;
+    private String judul, image_path, upload_date;
     private int status;
 
-    public ModelPanduan(int id, String judul, String deskripsi, String image_path, String upload_date, int status) {
+    public ModelPanduan(int id, String judul, String image_path, String upload_date, int status) {
         this.id = id;
         this.judul = judul;
-        this.deskripsi = deskripsi;
         this.image_path = image_path;
         this.upload_date = upload_date;
         this.status = status;
@@ -24,10 +23,6 @@ public class ModelPanduan {
 
     public String getJudul() {
         return judul;
-    }
-
-    public String getDeskripsi() {
-        return deskripsi;
     }
 
     public String getImage_path() {

@@ -20,7 +20,6 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.surampaksakosoy.ydig.R;
 import com.surampaksakosoy.ydig.models.ModelPanduan;
-
 import java.util.List;
 
 public class AdapterPanduan extends RecyclerView.Adapter<AdapterPanduan.Holder> {
@@ -51,24 +50,39 @@ public class AdapterPanduan extends RecyclerView.Adapter<AdapterPanduan.Holder> 
                     .listener(new RequestListener<Drawable>() {
                         @Override
                         public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-                            holder.image_failed.setVisibility(View.VISIBLE);
                             holder.progressBar.setVisibility(View.GONE);
                             return false;
                         }
 
                         @Override
                         public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                            holder.image_failed.setVisibility(View.GONE);
                             holder.progressBar.setVisibility(View.GONE);
                             return false;
                         }
                     })
                     .into(holder.imageView);
+//            Glide.with(context)
+//                    .load(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/YDIG/" + "JPEG_" + panduan.getId() + ".jpg"))
+//                    .listener(new RequestListener<Drawable>() {
+//                        @Override
+//                        public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+//                            holder.image_failed.setVisibility(View.VISIBLE);
+//                            holder.progressBar.setVisibility(View.GONE);
+//                            return false;
+//                        }
+//
+//                        @Override
+//                        public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+//                            holder.image_failed.setVisibility(View.GONE);
+//                            holder.progressBar.setVisibility(View.GONE);
+//                            return false;
+//                        }
+//                    })
+//                    .into(holder.imageView);
         } else {
             holder.imageView.setVisibility(View.GONE);
         }
         holder.judul.setText(panduan.getJudul());
-        holder.deskripsi.setText(panduan.getDeskripsi());
     }
 
     @Override
@@ -79,16 +93,14 @@ public class AdapterPanduan extends RecyclerView.Adapter<AdapterPanduan.Holder> 
     class Holder extends RecyclerView.ViewHolder{
 
         ImageView imageView;
-        TextView judul, deskripsi, image_failed;
+        TextView judul;
         ProgressBar progressBar;
 
         Holder(@NonNull View itemView) {
             super(itemView);
             imageView = itemView.findViewById(R.id.panduan_image);
             judul = itemView.findViewById(R.id.panduan_judul);
-            deskripsi = itemView.findViewById(R.id.panduan_deskripsi);
             progressBar = itemView.findViewById(R.id.panduan_loading_image);
-            image_failed = itemView.findViewById(R.id.panduan_loading_image_failed);
         }
     }
 }

@@ -1,66 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="fill_parent"
+    android:layout_height="200dp"
+    android:padding="5dp"
+    android:orientation="horizontal"
+    android:weightSum="100">
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="300dp"
-        tools:ignore="UselessParent">
-        <ImageView
-            android:id="@+id/panduan_image"
-            android:contentDescription="@null"
-            android:layout_width="match_parent"
-            android:layout_height="300dp"
-            android:src="@drawable/avatar" />
-        <ProgressBar
-            android:id="@+id/panduan_loading_image"
-            android:layout_centerInParent="true"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-        <TextView
-            android:visibility="gone"
-            android:id="@+id/panduan_loading_image_failed"
-            android:layout_centerInParent="true"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/gagal_memuat_gambar"
-            android:textColor="@color/orangeTulisan"/>
-        <TextView
-            android:id="@+id/panduan_judul"
-            android:paddingTop="5dp"
-            android:paddingBottom="5dp"
-            android:paddingStart="20dp"
-            android:paddingEnd="20dp"
-            android:background="#A6000000"
-            android:textColor="@color/putih"
-            android:layout_alignParentBottom="true"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textStyle="bold"
-            android:textSize="20sp"
-            android:text="@string/panduan_sholat"
-            android:paddingLeft="20dp"
-            android:paddingRight="20dp" />
-    </RelativeLayout>
-    <com.codesgood.views.JustifiedTextView
-        android:id="@+id/panduan_deskripsi"
-        android:paddingTop="5dp"
-        android:paddingStart="20dp"
-        android:paddingEnd="20dp"
-        android:layout_width="match_parent"
+    <androidx.cardview.widget.CardView
+        android:layout_width="0dp"
+        android:layout_weight="100"
         android:layout_height="wrap_content"
-        android:text="@string/description_panduan"/>
+        app:cardCornerRadius="10dp">
 
-    <LinearLayout
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp"
-        android:layout_marginStart="50dp"
-        android:layout_marginEnd="50dp"
-        android:background="@color/darkGrey"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginLeft="50dp"
-        android:layout_marginRight="50dp"/>
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/panduan_image"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:contentDescription="@null"
+                android:scaleType="centerCrop"
+                android:src="@drawable/avatar" />
+
+            <ProgressBar
+                android:id="@+id/panduan_loading_image"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true" />
+
+            <TextView
+                android:id="@+id/panduan_judul"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:background="#A6000000"
+                android:paddingStart="20dp"
+                android:paddingLeft="20dp"
+                android:paddingTop="20dp"
+                android:paddingEnd="20dp"
+                android:paddingRight="20dp"
+                android:paddingBottom="20dp"
+                android:text="@string/panduan_sholat"
+                android:textAlignment="center"
+                android:textColor="@color/putih"
+                android:textStyle="bold" />
+        </RelativeLayout>
+    </androidx.cardview.widget.CardView>
 </LinearLayout>

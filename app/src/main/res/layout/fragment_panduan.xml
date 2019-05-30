@@ -2,7 +2,18 @@
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
+    android:padding="10dp"
     android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/panduan_greeting"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:layout_marginStart="5dp"
+        android:layout_marginLeft="5dp"
+        android:textStyle="bold"
+    android:text="@string/panduan_greeting"/>
 
     <TextView
         android:id="@+id/panduan_textview"
@@ -15,6 +26,7 @@
         android:visibility="gone" />
 
     <androidx.recyclerview.widget.RecyclerView
+        android:layout_below="@+id/panduan_greeting"
         android:id="@+id/panduan_recyclerview"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
