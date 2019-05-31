@@ -1,25 +1,21 @@
 package com.surampaksakosoy.ydig.adapters;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.DataSource;
-import com.bumptech.glide.load.engine.GlideException;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.Target;
 import com.surampaksakosoy.ydig.R;
 import com.surampaksakosoy.ydig.models.ModelPanduan;
+
 import java.util.List;
 
 public class AdapterPanduan extends RecyclerView.Adapter<AdapterPanduan.Holder> {
@@ -28,9 +24,9 @@ public class AdapterPanduan extends RecyclerView.Adapter<AdapterPanduan.Holder> 
     private Context context;
 //    private static final String TAG = "AdapterPanduan";
 
-    public AdapterPanduan(Context context, List<ModelPanduan> modelPanduan){
+    public AdapterPanduan(List<ModelPanduan> modelPanduans, Context context){
+        this.modelPanduan = modelPanduans;
         this.context = context;
-        this.modelPanduan = modelPanduan;
     }
 
     @NonNull
@@ -42,65 +38,38 @@ public class AdapterPanduan extends RecyclerView.Adapter<AdapterPanduan.Holder> 
 
     @Override
     public void onBindViewHolder(@NonNull final AdapterPanduan.Holder holder, int position) {
-        ModelPanduan panduan = modelPanduan.get(position);
-        if (!panduan.getImage_path().equals("")){
-            Glide.with(context)
-                    .load(panduan.getImage_path())
-                    .centerCrop()
-                    .listener(new RequestListener<Drawable>() {
-                        @Override
-                        public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-                            holder.progressBar.setVisibility(View.GONE);
-                            return false;
-                        }
-
-                        @Override
-                        public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                            holder.progressBar.setVisibility(View.GONE);
-                            return false;
-                        }
-                    })
-                    .into(holder.imageView);
-//            Glide.with(context)
-//                    .load(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/YDIG/" + "JPEG_" + panduan.getId() + ".jpg"))
-//                    .listener(new RequestListener<Drawable>() {
-//                        @Override
-//                        public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-//                            holder.image_failed.setVisibility(View.VISIBLE);
-//                            holder.progressBar.setVisibility(View.GONE);
-//                            return false;
-//                        }
-//
-//                        @Override
-//                        public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-//                            holder.image_failed.setVisibility(View.GONE);
-//                            holder.progressBar.setVisibility(View.GONE);
-//                            return false;
-//                        }
-//                    })
-//                    .into(holder.imageView);
-        } else {
-            holder.imageView.setVisibility(View.GONE);
-        }
+        final ModelPanduan panduan = modelPanduan.get(position);
         holder.judul.setText(panduan.getJudul());
+        byte[] imagePanduan = panduan.getImage();
+        Bitmap bitmap = BitmapFactory.decodeByteArray(imagePanduan, 0, imagePanduan.length);
+        holder.imageView.setImageBitmap(bitmap);
+        holder.panduan_parent.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(context, panduan.getPanduan_id() + panduan.getId(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
+
+
 
     @Override
     public int getItemCount() {
         return modelPanduan.size();
     }
 
+
     class Holder extends RecyclerView.ViewHolder{
 
         ImageView imageView;
         TextView judul;
-        ProgressBar progressBar;
+        LinearLayout panduan_parent;
 
         Holder(@NonNull View itemView) {
             super(itemView);
             imageView = itemView.findViewById(R.id.panduan_image);
             judul = itemView.findViewById(R.id.panduan_judul);
-            progressBar = itemView.findViewById(R.id.panduan_loading_image);
+            panduan_parent = itemView.findViewById(R.id.panduan_parent);
         }
     }
 }

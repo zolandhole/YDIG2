@@ -6,12 +6,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
-
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
@@ -34,7 +32,6 @@ import com.surampaksakosoy.ydig.fragment.FragmentPanduan;
 import com.surampaksakosoy.ydig.handlers.DBHandler;
 import com.surampaksakosoy.ydig.handlers.ServerHandler;
 import com.surampaksakosoy.ydig.utils.NoInternetConnection;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -53,7 +50,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private String activeFragment;
     private boolean backPressExit = false;
     private NoInternetConnection internetConnection;
-    private static final String TAG = "MainActivity";
 
 
     @Override
@@ -62,7 +58,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setContentView(R.layout.activity_main);
         initView();
         initListener();
-
         checkInternetConnection(savedInstanceState);
         checkLocalDB();
     }
@@ -241,7 +236,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-        Log.e(TAG, "onNavigationItemSelected: " + activeFragment);
         switch (menuItem.getItemId()) {
             case R.id.nav_home:
                 if (internetConnection.isNetworkAvailable() && ID_LOGIN != null) {
@@ -290,8 +284,4 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void onInputPanduanSent(String input) {
         activeFragment = input;
     }
-    //    public void responseGetHomeDataSuccess(List<ModelHomeJadi> list) {
-//        fragmentHome = new FragmentHome();
-//        fragmentHome.updateData(list);
-//    }
 }
