@@ -91,6 +91,9 @@ public class HandlerServer {
             case "GET_PANDUAN":
                 URL = PublicAddress.GET_PANDUAN;
                 break;
+            case "GET_UPDATE":
+                URL = PublicAddress.GET_UPDATE;
+                break;
         }
         return URL;
     }

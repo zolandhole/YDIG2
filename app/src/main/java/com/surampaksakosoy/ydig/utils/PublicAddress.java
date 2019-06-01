@@ -7,4 +7,5 @@ public class PublicAddress {
     public static final String GET_HOME_DATA = "http://122.248.39.157:12345/ydig/kontent/manage";
     public static final String GET_MORE_DATA = "http://122.248.39.157:12345/ydig/kontent/load_more";
     public static final String GET_PANDUAN = "http://122.248.39.157:12345/ydig/kategoripanduan/manage";
+    public static final String GET_UPDATE = "http://122.248.39.157:12345/ydig/updatecontent/check_update";
 }

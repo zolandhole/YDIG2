@@ -72,9 +72,9 @@ public class FragmentPanduan extends Fragment {
         Cursor cursor = dbKategori.getData("SELECT * FROM tabelkategori");
         while (cursor.moveToNext()){
             int id = cursor.getInt(0);
-            String panduan_id = cursor.getString(1);
-            String judul = cursor.getString(2);
-            byte[] image = cursor.getBlob(3);
+            String panduan_id = cursor.getString(2);
+            String judul = cursor.getString(3);
+            byte[] image = cursor.getBlob(4);
             ModelPanduan item = new ModelPanduan(
                     id,panduan_id,judul,image
             );
