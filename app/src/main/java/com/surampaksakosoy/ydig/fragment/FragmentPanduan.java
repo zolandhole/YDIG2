@@ -31,6 +31,7 @@ public class FragmentPanduan extends Fragment {
     private List<ModelPanduan> modelPanduans;
     private ProgressBar progressBar;
     private FragmentPanduanListener listener;
+    private AdapterPanduan adapterPanduan;
 
 
     public FragmentPanduan() {
@@ -61,6 +62,7 @@ public class FragmentPanduan extends Fragment {
         recyclerView = view.findViewById(R.id.panduan_recyclerview);
         progressBar = view.findViewById(R.id.panduan_progressbar);
         progressBar.setVisibility(View.VISIBLE);
+        adapterPanduan = new AdapterPanduan(modelPanduans, getActivity().getApplicationContext());
 
         listener.onInputPanduanSent("panduan");
         getDataFromDB();
@@ -92,7 +94,6 @@ public class FragmentPanduan extends Fragment {
             textView.setVisibility(View.GONE);
             GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity().getApplicationContext(), 2);
             recyclerView.setLayoutManager(gridLayoutManager);
-            AdapterPanduan adapterPanduan = new AdapterPanduan(modelPanduans, getActivity().getApplicationContext());
             recyclerView.setItemAnimator(new DefaultItemAnimator());
             recyclerView.setHasFixedSize(true);
             recyclerView.setAdapter(adapterPanduan);

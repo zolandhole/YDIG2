@@ -1,6 +1,7 @@
 package com.surampaksakosoy.ydig.handlers;
 
 import android.content.Context;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -24,6 +25,7 @@ import java.util.Map;
 public class HandlerServer {
     private Context context;
     private String aktifitas;
+    private static final String TAG = "HandlerServer";
 
     public HandlerServer(Context context, String aktifitas) {
         this.context = context;
@@ -56,7 +58,10 @@ public class HandlerServer {
                         if (aktifitas.equals("GET_HOME_DATA") || aktifitas.equals("GET_MORE_DATA")) {
                             FragmentHome.resultError();
                         }
-                        Toast.makeText(context, "Tidak ada koneksi Internet", Toast.LENGTH_SHORT).show();
+                        Log.e(TAG, "onErrorResponse: " + error);
+                        if (String.valueOf(error).equals("com.android.volley.TimeoutError")){
+                            Toast.makeText(context, "Koneksi internet terdeteksi lambat", Toast.LENGTH_SHORT).show();
+                        }
                     }
                 }) {
             @Override

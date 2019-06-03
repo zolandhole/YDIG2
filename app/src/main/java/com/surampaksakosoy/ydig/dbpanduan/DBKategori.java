@@ -6,12 +6,15 @@ import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
+
+import com.surampaksakosoy.ydig.SplashScreenActivity;
 
 import static android.provider.BaseColumns._ID;
 
 public class DBKategori extends SQLiteOpenHelper {
 
-//    private static final String TAG = "DBKategori";
+    private static final String TAG = "DBKategori";
     private static final String DATABASE_NAME = "kategori.db";
     private static final int DATABASE_VERSION = 1;
     private SQLiteDatabase db;
@@ -51,6 +54,7 @@ public class DBKategori extends SQLiteOpenHelper {
         cv.put(JUDUL, judul);
         cv.put(IMAGE, image);
         db.insert( TABLE_NAME, null, cv);
+        Log.e(TAG, "addToDb: "+ versi);
     }
 
     public Cursor getData(String sql){
@@ -62,6 +66,7 @@ public class DBKategori extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_NAME, null, null);
         db.execSQL("DELETE FROM " + TABLE_NAME);
+        Log.e(TAG, "deleteDB: Database terhapus");
     }
 
     public int countKategori(){

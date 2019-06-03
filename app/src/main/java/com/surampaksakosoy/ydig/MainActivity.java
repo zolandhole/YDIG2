@@ -98,6 +98,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else {
             if (backPressExit) {
                 super.onBackPressed();
+                finish();
             }
 
             this.backPressExit = true;

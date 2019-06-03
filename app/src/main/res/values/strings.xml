@@ -39,4 +39,5 @@
     <string name="description_panduan">Sungguh, shalat itu adalah kewajiban yang ditentukan waktunya atas orang-orang yang beriman. \nQ.S. An-Nisa/4: 103</string>
     <string name="gagal_memuat_gambar">Gagal memuat Gambar</string>
     <string name="panduan_greeting">Menuntut ilmu itu wajib atas setiap Muslim\n(HR. Ibnu Majah no. 224)</string>
+    <string name="progress">progress</string>
 </resources>
