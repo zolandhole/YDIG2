@@ -10,11 +10,15 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.androidstudy.networkmanager.Monitor;
+import com.androidstudy.networkmanager.Tovuti;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.facebook.internal.ImageRequest;
@@ -41,6 +45,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, FragmentHome.FragmentHomeListener, FragmentPanduan.FragmentPanduanListener {
 
+    private static final String TAG = "MainActivity";
     private String SUMBER_LOGIN, ID_LOGIN, NAMA, EMAIL;
     private DBHandler dbHandler;
     private GoogleSignInClient googleSignInClient;
@@ -59,15 +64,25 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         initView();
         initListener();
         checkInternetConnection(savedInstanceState);
-        checkLocalDB();
+    }
+
+    @Override
+    protected void onStop() {
+        Tovuti.from(this).stop();
+        super.onStop();
     }
 
     private void checkInternetConnection(final Bundle savedInstanceState) {
+        checkLocalDB();
         if (internetConnection.isNetworkAvailable()) {
             keHomeFragment(savedInstanceState);
         } else {
+            if (ID_LOGIN == null){
+                Menu nav_Menu = navigationView.getMenu();
+                nav_Menu.findItem(R.id.nav_logout).setVisible(false);
+                nav_Menu.findItem(R.id.nav_account).setVisible(false);
+            }
             kePanduanFragment(savedInstanceState);
-            noConnection();
         }
     }
 

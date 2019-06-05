@@ -13,7 +13,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -30,6 +29,7 @@ import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.google.android.material.snackbar.Snackbar;
 import com.surampaksakosoy.ydig.dbpanduan.DBKategori;
+import com.surampaksakosoy.ydig.handlers.DBHandler;
 import com.surampaksakosoy.ydig.handlers.HandlerServer;
 import com.surampaksakosoy.ydig.interfaces.VolleyCallback;
 import com.surampaksakosoy.ydig.utils.NoInternetConnection;
@@ -40,17 +40,21 @@ import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class SplashScreenActivity extends AppCompatActivity {
     private int mLoading = 0, progress = 0, rowDB;
     private Handler handler = new Handler();
+    private DBHandler dbHandler;
     private DBKategori dbKategori;
     private ProgressBar progressBar;
     private ImageView imageView;
     private TextView textViewProgress;
-    private String aktifitas, versi;
+    private String aktifitas, versi, ADSID, IDLOGIN;
     private Snackbar snackbar;
+    private NoInternetConnection internetConnection;
     private boolean doubleCheck = true;
     private static final String TAG = "SplashScreenActivity";
 
@@ -72,19 +76,57 @@ public class SplashScreenActivity extends AppCompatActivity {
         Drawable drawable = getResources().getDrawable(R.drawable.customprogressbar);
         progressBar.setProgressDrawable(drawable);
         progressBar.setVisibility(View.GONE);
+        dbHandler = new DBHandler(SplashScreenActivity.this);
         dbKategori = new DBKategori(SplashScreenActivity.this);
+        internetConnection = new NoInternetConnection(SplashScreenActivity.this);
+
         rowDB = dbKategori.countKategori();
 
         snackbar = Snackbar.make(findViewById(R.id.splash_layout),
                 "Membutuhkan koneksi internet",
                 Snackbar.LENGTH_INDEFINITE);
 
+        ADSID = "35" +
+                Build.BOARD.length()%10+ Build.BRAND.length()%10 +
+                Build.CPU_ABI.length()%10 + Build.DEVICE.length()%10 +
+                Build.DISPLAY.length()%10 + Build.HOST.length()%10 +
+                Build.ID.length()%10 + Build.MANUFACTURER.length()%10 +
+                Build.MODEL.length()%10 + Build.PRODUCT.length()%10 +
+                Build.TAGS.length()%10 + Build.TYPE.length()%10 +
+                Build.USER.length()%10 ; //13 digits
+
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                checkInternetConnction();
+                checkLocalDB();
             }
         }, 2500);
+    }
+
+    private void checkLocalDB() {
+        ArrayList<HashMap<String, String>> userDB = dbHandler.getUser(1);
+        for (Map<String, String> map : userDB) {
+            IDLOGIN = map.get("id_login");
+        }
+
+        if (IDLOGIN == null && !internetConnection.isNetworkAvailable()) {
+            Log.e(TAG, "checkLocalDB: Tidak ada id login dan tidak ada koneksi internet");
+            loadingFinish();
+        } else if (IDLOGIN == null && internetConnection.isNetworkAvailable()) {
+            Log.e(TAG, "checkLocalDB: Tidak ada ID LOGIN tapi ada koneksi internet");
+            prosesLogout();
+        } else {
+            Log.e(TAG, "checkLocalDB: ADA ID LOGIN dan ada internet");
+            checkUpdateKontent();
+        }
+    }
+
+    private void prosesLogout() {
+        dbHandler.deleteDB();
+        Intent intent = new Intent(this, LoginActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
     }
 
     @Override
@@ -93,8 +135,7 @@ public class SplashScreenActivity extends AppCompatActivity {
         super.onStop();
     }
 
-    private void checkInternetConnction() {
-        NoInternetConnection internetConnection = new NoInternetConnection(SplashScreenActivity.this);
+    private void checkUpdateKontent() {
         if (internetConnection.isNetworkAvailable()) {
             checkUpdate();
         } else {
@@ -106,7 +147,7 @@ public class SplashScreenActivity extends AppCompatActivity {
                     public void onConnectivityChanged(int connectionType, boolean isConnected, boolean isFast) {
                         if (isConnected){
                             snackbar.dismiss();
-                            checkInternetConnction();
+                            checkUpdateKontent();
                         } else {
 
                             View sbView = snackbar.getView();
@@ -122,14 +163,15 @@ public class SplashScreenActivity extends AppCompatActivity {
     private void checkUpdate() {
         aktifitas = "GET_UPDATE";
         List<String> list = new ArrayList<>();
-        list.add("0");
+        list.add(IDLOGIN);
+        list.add(ADSID);
         HandlerServer handlerServer = new HandlerServer(SplashScreenActivity.this, aktifitas);
         synchronized (SplashScreenActivity.this) {
             handlerServer.getList(new VolleyCallback() {
                 @Override
                 public void onFailed(String result) {
                     if (doubleCheck) {
-                        checkInternetConnction();
+                        checkUpdateKontent();
                         doubleCheck = false;
                     }
                     Log.e(TAG, "onFailed: " + result + " double check :" + doubleCheck);
@@ -255,137 +297,6 @@ public class SplashScreenActivity extends AppCompatActivity {
         }, 100);
 
     }
-
-    //
-//    private void checkInternetConnction() {
-//        Tovuti.from(this).monitor(new Monitor.ConnectivityListener() {
-//            @Override
-//            public void onConnectivityChanged(int connectionType, boolean isConnected, boolean isFast) {
-//                if (isConnected) {
-//                    checkUpdate();
-//                } else {
-//                    if (rowDB > 0) {
-//                        loadingFinish();
-//                    } else {
-//                        Snackbar.make(findViewById(R.id.splash_layout), "Data Offline kosong, membutuhkan koneksi internet untuk memuat data", Snackbar.LENGTH_LONG).show();
-//                        progressBar.setVisibility(View.GONE);
-//                        finish();
-//                    }
-//                }
-//            }
-//        });
-//    }
-//
-//    private void checkUpdate() {
-//        aktifitas = "GET_UPDATE";
-//        List<String> list = new ArrayList<>();
-//        list.add("0");
-//        HandlerServer handlerServer = new HandlerServer(SplashScreenActivity.this, aktifitas);
-//        synchronized (SplashScreenActivity.this) {
-//            handlerServer.getList(new VolleyCallback() {
-//                @Override
-//                public void onFailed(String result) {
-//                    Log.e(TAG, "onFailed: +  Gagal memuat data");
-//                }
-//
-//                @Override
-//                public void onSuccess(JSONArray jsonArray) {
-//                    resultSuccess(jsonArray);
-//                }
-//            }, list);
-//        }
-//    }
-//
-//    public void getPanduanOffline() {
-//        aktifitas = "GET_PANDUAN";
-//        dbKategori.deleteDB();
-//        List<String> list = new ArrayList<>();
-//        list.add("0");
-//        HandlerServer handlerServer = new HandlerServer(SplashScreenActivity.this, aktifitas);
-//        synchronized (SplashScreenActivity.this) {
-//            handlerServer.getList(new VolleyCallback() {
-//                @Override
-//                public void onFailed(String result) {
-//                    Log.e(TAG, "onFailed: FAILED CONNECT TO SERVER");
-//                }
-//
-//                @Override
-//                public void onSuccess(JSONArray jsonArray) {
-//                    progress = 100;
-//                    updateProgressBar(progress);
-//                    resultSuccess(jsonArray);
-//                }
-//            }, list);
-//        }
-//    }
-//
-//    private void resultSuccess(JSONArray jsonArray) {
-//        try {
-//            JSONObject dataServer;
-//            JSONObject isiData;
-//            switch (aktifitas) {
-//                case "GET_UPDATE":
-//                    dataServer = jsonArray.getJSONObject(0);
-//                    isiData = dataServer.getJSONObject("data");
-//                    versi = isiData.getString("kategori");
-//                    Log.e(TAG, "resultSuccess: " + rowDB);
-//                    if (rowDB > 0) {
-//                        DBKategori dbKategori = new DBKategori(SplashScreenActivity.this);
-//                        Cursor cursor = dbKategori.getData("SELECT * FROM tabelkategori");
-//                        String versiKategori = "";
-//                        if (cursor.moveToNext()) {
-//                            versiKategori = cursor.getString(1);
-//                            Log.e(TAG, "resultSuccess: MoveNext" + versiKategori);
-//                        }
-//                        Log.e(TAG, "resultSuccess: " + versiKategori);
-//
-//                        if (versiKategori.equals(versi)) {
-//                            loadingFinish();
-//                            Log.e(TAG, "resultSuccess: Versi software sama");
-//                        } else {
-//                            getPanduanOffline();
-//                            Log.e(TAG, "resultSuccess: Anda Melawati Bagian Ini");
-//                        }
-//                    } else {
-//                        getPanduanOffline();
-//                    }
-//                    break;
-//                case "GET_PANDUAN":
-//                    for (int i = 0; i < jsonArray.length(); i++) {
-//                        mLoading = mLoading + 5;
-//                        updateProgressBar(mLoading);
-//                        dataServer = jsonArray.getJSONObject(i);
-//                        isiData = dataServer.getJSONObject("data");
-//                        final JSONObject finalIsiData = isiData;
-//                        final JSONObject finalDataServer = dataServer;
-//                        Glide.with(getApplicationContext())
-//                                .asBitmap()
-//                                .load(isiData.getString("image_path"))
-//                                .centerCrop()
-//                                .into(new SimpleTarget<Bitmap>(200, 200) {
-//                                    @Override
-//                                    public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
-//                                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-//                                        resource.compress(Bitmap.CompressFormat.PNG, 100, baos);
-//                                        byte[] data = baos.toByteArray();
-//                                        try {
-//                                            dbKategori.addToDb(versi, finalDataServer.getString("id"), finalIsiData.getString("judul"), data);
-//                                            Log.e(TAG, "onResourceReady: " + finalIsiData.getString("judul"));
-//                                        } catch (JSONException e) {
-//                                            Log.e(TAG, "onResourceReady: " + e);
-//                                            e.printStackTrace();
-//                                        }
-//                                    }
-//                                });
-//                    }
-//                    break;
-//            }
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//            Log.e(TAG, "resultSuccess: " + e);
-//        }
-//    }
-//
 
     private void updateText(final String text){
         runOnUiThread(new Runnable() {
