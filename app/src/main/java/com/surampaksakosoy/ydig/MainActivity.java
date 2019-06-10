@@ -10,14 +10,12 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.androidstudy.networkmanager.Monitor;
 import com.androidstudy.networkmanager.Tovuti;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -33,6 +31,7 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.surampaksakosoy.ydig.fragment.FragmentHome;
 import com.surampaksakosoy.ydig.fragment.FragmentPanduan;
+import com.surampaksakosoy.ydig.fragment.FragmentStreaming;
 import com.surampaksakosoy.ydig.handlers.DBHandler;
 import com.surampaksakosoy.ydig.handlers.ServerHandler;
 import com.surampaksakosoy.ydig.utils.NoInternetConnection;
@@ -43,9 +42,13 @@ import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, FragmentHome.FragmentHomeListener, FragmentPanduan.FragmentPanduanListener {
+public class MainActivity extends AppCompatActivity implements
+        NavigationView.OnNavigationItemSelectedListener,
+        FragmentHome.FragmentHomeListener,
+        FragmentPanduan.FragmentPanduanListener,
+        FragmentStreaming.FragmentStreamingListener {
 
-    private static final String TAG = "MainActivity";
+//    private static final String TAG = "MainActivity";
     private String SUMBER_LOGIN, ID_LOGIN, NAMA, EMAIL;
     private DBHandler dbHandler;
     private GoogleSignInClient googleSignInClient;
@@ -74,8 +77,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void checkInternetConnection(final Bundle savedInstanceState) {
         checkLocalDB();
+        String dariNotification = getIntent().getStringExtra("streamingRadio");
         if (internetConnection.isNetworkAvailable()) {
-            keHomeFragment(savedInstanceState);
+            if (dariNotification == null){
+                keHomeFragment(savedInstanceState);
+            } else {
+                keStreamingFragment(savedInstanceState);
+            }
         } else {
             if (ID_LOGIN == null){
                 Menu nav_Menu = navigationView.getMenu();
@@ -103,6 +111,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container,
                     new FragmentHome()).commit();
             navigationView.setCheckedItem(R.id.nav_home);
+        }
+    }
+
+    private void keStreamingFragment(Bundle savedInstanceState) {
+        if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container,
+                    new FragmentStreaming()).commit();
+            navigationView.setCheckedItem(R.id.nav_streaming);
         }
     }
 
@@ -275,7 +291,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 Toast.makeText(this, "Info Kajian", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.nav_streaming:
-                Toast.makeText(this, "Radio Streaming", Toast.LENGTH_SHORT).show();
+                if (!activeFragment.equals("streaming")){
+                    getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container,
+                            new FragmentStreaming()).commit();
+                }
                 break;
             case R.id.nav_chat:
                 Toast.makeText(this, "Chatting", Toast.LENGTH_SHORT).show();
@@ -298,6 +317,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void onInputPanduanSent(String input) {
+        activeFragment = input;
+    }
+
+    @Override
+    public void onInputStreamingSent(String input) {
         activeFragment = input;
     }
 }

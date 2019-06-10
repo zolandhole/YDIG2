@@ -44,6 +44,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.surampaksakosoy.ydig.R.color.merahmarun;
+
 public class SplashScreenActivity extends AppCompatActivity {
     private int mLoading = 0, progress = 0, rowDB;
     private Handler handler = new Handler();
@@ -151,7 +153,7 @@ public class SplashScreenActivity extends AppCompatActivity {
                         } else {
 
                             View sbView = snackbar.getView();
-                            sbView.setBackgroundColor(ContextCompat.getColor(SplashScreenActivity.this, R.color.merahMarun));
+                            sbView.setBackgroundColor(ContextCompat.getColor(SplashScreenActivity.this, merahmarun));
                             snackbar.show();
                         }
                     }
