@@ -1,6 +1,5 @@
 package com.surampaksakosoy.ydig.Services;
 
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
@@ -11,6 +10,7 @@ import android.media.MediaPlayer;
 import android.os.IBinder;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
@@ -28,6 +28,7 @@ public class StreamingService extends Service implements MediaPlayer.OnCompletio
     private MediaPlayer mediaPlayer = new MediaPlayer();
     private boolean isPausedCall = false;
     private BroadcastReceiver broadcastReceiver;
+    private static final String TAG = "StreamingService";
 
     @Override
     public void onCreate() {
@@ -39,6 +40,7 @@ public class StreamingService extends Service implements MediaPlayer.OnCompletio
             @Override
             public void onReceive(Context context, Intent intent) {
                 String action = intent.getAction();
+                Log.e(TAG, "onReceive: " + action);
                 assert  action != null;
                 switch (action){
                     case "stop":
@@ -50,7 +52,7 @@ public class StreamingService extends Service implements MediaPlayer.OnCompletio
                         playMedia();
                         break;
                     case "exit":
-                        exitMedia();
+                        stopMedia();
                         break;
                 }
             }
@@ -69,15 +71,20 @@ public class StreamingService extends Service implements MediaPlayer.OnCompletio
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         initIfPhoneCall();
-        showNotification(intent.getExtras().getString("name"));
-        mediaPlayer.reset();
-        if (!mediaPlayer.isPlaying()){
-            try {
-                mediaPlayer.setDataSource(intent.getExtras().getString("url"));
-                mediaPlayer.prepareAsync();
-            } catch (IOException e) {
-                e.printStackTrace();
+        String nama;
+        if (intent!=null){
+            nama = intent.getExtras().getString("name");
+            showNotification(nama);
+            mediaPlayer.reset();
+            if (!mediaPlayer.isPlaying()){
+                try {
+                    mediaPlayer.setDataSource(intent.getExtras().getString("url"));
+                    mediaPlayer.prepareAsync();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
+
         }
         return START_STICKY;
     }
@@ -85,14 +92,7 @@ public class StreamingService extends Service implements MediaPlayer.OnCompletio
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (mediaPlayer != null){
-            if (mediaPlayer.isPlaying()){
-                mediaPlayer.stop();
-            }
-            mediaPlayer.release();
-        }
         unregisterReceiver(broadcastReceiver);
-        hideNotification();
     }
 
     private void playMedia(){
@@ -101,10 +101,15 @@ public class StreamingService extends Service implements MediaPlayer.OnCompletio
         }
     }
 
-    private void stopMedia(){
-        if (mediaPlayer.isPlaying()){
-            mediaPlayer.stop();
+    public void stopMedia(){
+        if (mediaPlayer != null){
+            if (mediaPlayer.isPlaying()){
+                mediaPlayer.stop();
+            }
+            mediaPlayer.release();
         }
+        stopForeground(true);
+        stopSelf();
     }
 
     private void pauseMedia(){
@@ -113,14 +118,14 @@ public class StreamingService extends Service implements MediaPlayer.OnCompletio
         }
     }
 
-    private void exitMedia(){
-        // close App
-        if (mediaPlayer != null){
-            mediaPlayer.stop();
-            mediaPlayer.release();
-            mediaPlayer = null;
-        }
-    }
+//    private void exitMedia(){
+//        // close App
+//        if (mediaPlayer != null){
+//            mediaPlayer.stop();
+//            mediaPlayer.release();
+//            mediaPlayer = null;
+//        }
+//    }
 
     private void initIfPhoneCall(){
         TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
@@ -163,6 +168,10 @@ public class StreamingService extends Service implements MediaPlayer.OnCompletio
         intentPlay.setAction("start");
         PendingIntent pendingIntentPlay = PendingIntent.getBroadcast(this, 12345, intentPlay, PendingIntent.FLAG_UPDATE_CURRENT);
 
+        Intent intentExit = new Intent(this, StreamingReceiver.class);
+        intentExit.setAction("exit");
+        PendingIntent pendingIntentExit = PendingIntent.getBroadcast(this, 12345, intentExit, PendingIntent.FLAG_UPDATE_CURRENT);
+
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID);
         builder.setSmallIcon(R.mipmap.ic_launcher)
                 .setTicker("Mendengarkan " + name)
@@ -172,14 +181,11 @@ public class StreamingService extends Service implements MediaPlayer.OnCompletio
                 .setContentIntent(pendingIntentOpenApp)
                 .addAction(android.R.drawable.ic_media_play, "MAINKAN", pendingIntentPlay)
                 .addAction(android.R.drawable.ic_media_pause, "PAUSE", pendingIntentPause)
-                ;
+                .addAction(android.R.drawable.ic_delete,"HENTIKAN", pendingIntentExit)
+        ;
 
         startForeground(115, builder.build());
-    }
 
-    public void hideNotification(){
-        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        notificationManager.cancel(115);
     }
 
     @Nullable

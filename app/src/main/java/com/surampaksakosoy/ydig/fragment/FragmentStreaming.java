@@ -1,31 +1,31 @@
 package com.surampaksakosoy.ydig.fragment;
 
 import android.annotation.SuppressLint;
-import android.app.NotificationManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.surampaksakosoy.ydig.BroadcastReceivers.StreamingReceiver;
 import com.surampaksakosoy.ydig.R;
 import com.surampaksakosoy.ydig.Services.StreamingService;
 
-import static android.content.Context.NOTIFICATION_SERVICE;
-
 public class FragmentStreaming extends Fragment{
 
+//    private static final String TAG = "FragmentStreaming";
     private FragmentStreamingListener listener;
     private Button btnMainkan;
-//    private String LINK = "http://live.radiosunnah.net/;";
-//    private String NAMA = "Radio Streaming YDIG";
+    private BroadcastReceiver broadcastReceiver;
+
 
     public FragmentStreaming() {
     }
@@ -50,16 +50,16 @@ public class FragmentStreaming extends Fragment{
         View view = inflater.inflate(R.layout.fragment_streaming, container, false);
         listener.onInputStreamingSent("streaming");
         btnMainkan = view.findViewById(R.id.streaming_mainkan);
+
         btnMainkan.setOnClickListener(new View.OnClickListener() {
             @SuppressLint("SetTextI18n")
             @Override
             public void onClick(View v) {
                 if (btnMainkan.getText().equals("Hentikan")){
-                    Toast.makeText(getActivity().getApplicationContext(), "Hentikan radio", Toast.LENGTH_SHORT).show();
-                    btnMainkan.setText("Mainkan");
-
-                    StreamingService streamingService = new StreamingService();
-                    streamingService.hideNotification();
+                    Intent intentExit = new Intent(getActivity().getApplicationContext(), StreamingReceiver.class);
+                    intentExit.setAction("exit");
+                    getActivity().sendBroadcast(intentExit);
+                    stopStreamingRadio();
                 } else {
                     mainkan();
                 }
@@ -68,10 +68,39 @@ public class FragmentStreaming extends Fragment{
         return view;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        stopStreamingRadio();
+    }
+
+    private void stopStreamingRadio() {
+        broadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                getActivity().runOnUiThread(new Runnable() {
+                    @SuppressLint("SetTextI18n")
+                    @Override
+                    public void run() {
+                        btnMainkan.setText("Mainkan");
+                    }
+                });
+            }
+        };
+        getActivity().registerReceiver(broadcastReceiver, new IntentFilter("exit"));
+    }
+
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        getActivity().unregisterReceiver(broadcastReceiver);
+    }
+
     @SuppressLint("SetTextI18n")
     private void mainkan() {
         Bundle bundle = new Bundle();
-        bundle.putString("url", "http://live.radiosunnah.net/;");
+        bundle.putString("url", "http://122.248.39.157:8000/;?type=http&nocache=9");
         bundle.putString("name", "Radio Cirebon");
         Intent serviceOn = new Intent(getActivity().getApplicationContext(), StreamingService.class);
         serviceOn.putExtras(bundle);
