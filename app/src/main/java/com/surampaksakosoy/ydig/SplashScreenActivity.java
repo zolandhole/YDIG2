@@ -27,7 +27,11 @@ import com.androidstudy.networkmanager.Tovuti;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 import com.surampaksakosoy.ydig.dbpanduan.DBKategori;
 import com.surampaksakosoy.ydig.handlers.DBHandler;
 import com.surampaksakosoy.ydig.handlers.HandlerServer;
@@ -54,7 +58,7 @@ public class SplashScreenActivity extends AppCompatActivity {
     private ProgressBar progressBar;
     private ImageView imageView;
     private TextView textViewProgress;
-    private String aktifitas, versi, ADSID, IDLOGIN;
+    private String aktifitas, versi, ADSID, IDLOGIN, TOKENFCM;
     private Snackbar snackbar;
     private NoInternetConnection internetConnection;
     private boolean doubleCheck = true;
@@ -88,6 +92,8 @@ public class SplashScreenActivity extends AppCompatActivity {
                 "Membutuhkan koneksi internet",
                 Snackbar.LENGTH_INDEFINITE);
 
+        generateTokenForFCM();
+
         ADSID = "35" +
                 Build.BOARD.length()%10+ Build.BRAND.length()%10 +
                 Build.CPU_ABI.length()%10 + Build.DEVICE.length()%10 +
@@ -105,6 +111,16 @@ public class SplashScreenActivity extends AppCompatActivity {
         }, 2500);
     }
 
+    private void generateTokenForFCM() {
+        FirebaseApp.initializeApp(this);
+        FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(new OnSuccessListener<InstanceIdResult>() {
+            @Override
+            public void onSuccess(InstanceIdResult instanceIdResult) {
+                TOKENFCM = instanceIdResult.getToken();
+            }
+        });
+    }
+
     private void checkLocalDB() {
         ArrayList<HashMap<String, String>> userDB = dbHandler.getUser(1);
         for (Map<String, String> map : userDB) {
@@ -112,13 +128,10 @@ public class SplashScreenActivity extends AppCompatActivity {
         }
 
         if (IDLOGIN == null && !internetConnection.isNetworkAvailable()) {
-            Log.e(TAG, "checkLocalDB: Tidak ada id login dan tidak ada koneksi internet");
             loadingFinish();
         } else if (IDLOGIN == null && internetConnection.isNetworkAvailable()) {
-            Log.e(TAG, "checkLocalDB: Tidak ada ID LOGIN tapi ada koneksi internet");
             prosesLogout();
         } else {
-            Log.e(TAG, "checkLocalDB: ADA ID LOGIN dan ada internet");
             checkUpdateKontent();
         }
     }
@@ -167,6 +180,7 @@ public class SplashScreenActivity extends AppCompatActivity {
         List<String> list = new ArrayList<>();
         list.add(IDLOGIN);
         list.add(ADSID);
+        list.add(TOKENFCM);
         HandlerServer handlerServer = new HandlerServer(SplashScreenActivity.this, aktifitas);
         synchronized (SplashScreenActivity.this) {
             handlerServer.getList(new VolleyCallback() {

@@ -66,6 +66,7 @@ public class HandlerServer {
                 }) {
             @Override
             protected Map<String, String> getParams() {
+                Log.e(TAG, "getParams: " + list);
                 Map<String, String> params = new HashMap<>();
                 params.put("params", String.valueOf(list));
                 return params;

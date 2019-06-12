@@ -173,7 +173,7 @@ public class StreamingService extends Service implements MediaPlayer.OnCompletio
         PendingIntent pendingIntentExit = PendingIntent.getBroadcast(this, 12345, intentExit, PendingIntent.FLAG_UPDATE_CURRENT);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID);
-        builder.setSmallIcon(R.mipmap.ic_launcher)
+        builder.setSmallIcon(R.drawable.ic_ydig_notif)
                 .setTicker("Mendengarkan " + name)
                 .setOngoing(true)
                 .setContentTitle(name)
