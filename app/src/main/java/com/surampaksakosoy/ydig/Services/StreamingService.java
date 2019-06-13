@@ -36,6 +36,7 @@ public class StreamingService extends Service implements MediaPlayer.OnCompletio
         filter.addAction("stop");
         filter.addAction("start");
         filter.addAction("exit");
+        filter.addAction("error");
         broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -179,9 +180,9 @@ public class StreamingService extends Service implements MediaPlayer.OnCompletio
                 .setContentTitle(name)
                 .setContentText("Oleh YDIG")
                 .setContentIntent(pendingIntentOpenApp)
-                .addAction(android.R.drawable.ic_media_play, "MAINKAN", pendingIntentPlay)
+                .addAction(android.R.drawable.ic_media_play, "PLAY", pendingIntentPlay)
                 .addAction(android.R.drawable.ic_media_pause, "PAUSE", pendingIntentPause)
-                .addAction(android.R.drawable.ic_delete,"HENTIKAN", pendingIntentExit)
+                .addAction(android.R.drawable.ic_delete,"STOP", pendingIntentExit)
         ;
 
         startForeground(115, builder.build());
@@ -207,6 +208,10 @@ public class StreamingService extends Service implements MediaPlayer.OnCompletio
 
     @Override
     public boolean onError(MediaPlayer mp, int what, int extra) {
+        Log.e(TAG, "onError: WHAT: " + what + "EXTRA: " + extra);
+        Intent intentError = new Intent(this, StreamingReceiver.class);
+        intentError.setAction("elor");
+        sendBroadcast(intentError);
         return false;
     }
 

@@ -50,7 +50,7 @@ public class FragmentStreaming extends Fragment{
         View view = inflater.inflate(R.layout.fragment_streaming, container, false);
         listener.onInputStreamingSent("streaming");
         btnMainkan = view.findViewById(R.id.streaming_mainkan);
-
+        stopStreamingRadio();
         btnMainkan.setOnClickListener(new View.OnClickListener() {
             @SuppressLint("SetTextI18n")
             @Override
@@ -59,7 +59,6 @@ public class FragmentStreaming extends Fragment{
                     Intent intentExit = new Intent(getActivity().getApplicationContext(), StreamingReceiver.class);
                     intentExit.setAction("exit");
                     getActivity().sendBroadcast(intentExit);
-                    stopStreamingRadio();
                 } else {
                     mainkan();
                 }
@@ -100,7 +99,7 @@ public class FragmentStreaming extends Fragment{
     @SuppressLint("SetTextI18n")
     private void mainkan() {
         Bundle bundle = new Bundle();
-        bundle.putString("url", "http://122.248.39.157:8000/;?type=http&nocache=9");
+        bundle.putString("url", "http://live.radiosunnah.net/;");
         bundle.putString("name", "Radio Cirebon");
         Intent serviceOn = new Intent(getActivity().getApplicationContext(), StreamingService.class);
         serviceOn.putExtras(bundle);
