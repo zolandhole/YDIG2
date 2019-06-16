@@ -21,8 +21,8 @@ public class FirebaseService extends FirebaseMessagingService {
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
+        Log.e(TAG, "onMessageReceived: Data Payload: " + remoteMessage.getData().toString());
         if (remoteMessage.getData().size() > 0){
-            Log.e(TAG, "onMessageReceived: Data Payload: " + remoteMessage.getData().toString());
             try {
                 JSONObject jsonObject = new JSONObject(remoteMessage.getData().toString());
                 sendPushNotification(jsonObject);
@@ -38,18 +38,20 @@ public class FirebaseService extends FirebaseMessagingService {
             JSONObject data = jsonObject.getJSONObject("data");
             String title = data.getString("title");
             String message = data.getString("message");
-            String imageUrl = data.getString("image");
+//            String imageUrl = data.getString("image");
 
             MyNotificationManager myNotificationManager = new MyNotificationManager(getApplicationContext());
             Intent intent = new Intent(getApplicationContext(), MainActivity.class);
 
-            if (imageUrl.equals("null")){
-                myNotificationManager.showSmallNotification(title, message, intent);
-            } else {
-                myNotificationManager.showBigNotification(title, message, imageUrl, intent);
-            }
+            myNotificationManager.showSmallNotification(title,message,intent);
+//            if (imageUrl.equals("null")){
+//                myNotificationManager.showSmallNotification(title, message, intent);
+//            } else {
+//                myNotificationManager.showBigNotification(title, message, imageUrl, intent);
+//            }
         } catch (JSONException e) {
             e.printStackTrace();
+            Log.e(TAG, "sendPushNotification: " + e);
         }
     }
 }

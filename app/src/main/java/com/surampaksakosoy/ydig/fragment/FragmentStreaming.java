@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,7 +22,7 @@ import com.surampaksakosoy.ydig.Services.StreamingService;
 
 public class FragmentStreaming extends Fragment{
 
-//    private static final String TAG = "FragmentStreaming";
+    private static final String TAG = "FragmentStreaming";
     private FragmentStreamingListener listener;
     private Button btnMainkan;
     private BroadcastReceiver broadcastReceiver;
@@ -31,7 +32,7 @@ public class FragmentStreaming extends Fragment{
     }
 
     public interface FragmentStreamingListener {
-        void onInputStreamingSent(String input);
+        void onInputStreamingSent(CharSequence input);
     }
 
     @Override
@@ -48,7 +49,8 @@ public class FragmentStreaming extends Fragment{
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_streaming, container, false);
-        listener.onInputStreamingSent("streaming");
+        CharSequence test = "streaming";
+        listener.onInputStreamingSent(test);
         btnMainkan = view.findViewById(R.id.streaming_mainkan);
         stopStreamingRadio();
         btnMainkan.setOnClickListener(new View.OnClickListener() {
@@ -99,8 +101,8 @@ public class FragmentStreaming extends Fragment{
     @SuppressLint("SetTextI18n")
     private void mainkan() {
         Bundle bundle = new Bundle();
-        bundle.putString("url", "http://live.radiosunnah.net/;");
-        bundle.putString("name", "Radio Cirebon");
+        bundle.putString("url", "http://122.248.39.157:8000/;");
+        bundle.putString("name", "Live On Air Radio Streaming");
         Intent serviceOn = new Intent(getActivity().getApplicationContext(), StreamingService.class);
         serviceOn.putExtras(bundle);
         getActivity().startService(serviceOn);
@@ -116,5 +118,17 @@ public class FragmentStreaming extends Fragment{
     public void onDetach() {
         super.onDetach();
         listener = null;
+    }
+
+    public void updateData(CharSequence newData){
+        if (newData.equals("streamingRadio")){
+            getActivity().runOnUiThread(new Runnable() {
+                @SuppressLint("SetTextI18n")
+                @Override
+                public void run() {
+                    btnMainkan.setText("Mainkan");
+                }
+            });
+        }
     }
 }

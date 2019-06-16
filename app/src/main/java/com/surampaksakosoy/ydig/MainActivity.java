@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -48,14 +49,14 @@ public class MainActivity extends AppCompatActivity implements
         FragmentPanduan.FragmentPanduanListener,
         FragmentStreaming.FragmentStreamingListener {
 
-//    private static final String TAG = "MainActivity";
+    private static final String TAG = "MainActivity";
     private String SUMBER_LOGIN, ID_LOGIN, NAMA, EMAIL;
     private DBHandler dbHandler;
     private GoogleSignInClient googleSignInClient;
     private DrawerLayout drawerLayout;
     private Toolbar toolbar;
     private NavigationView navigationView;
-    private String activeFragment;
+    private CharSequence activeFragment;
     private boolean backPressExit = false;
     private NoInternetConnection internetConnection;
 
@@ -70,6 +71,19 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        String Test = intent.getStringExtra("streamingRadio");
+        if (Test.equals("streamingRadio")){
+            getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container,
+                    new FragmentStreaming()).commit();
+            navigationView.setCheckedItem(R.id.nav_streaming);
+            FragmentStreaming fragmentStreaming = new FragmentStreaming();
+            fragmentStreaming.updateData(Test);
+        }
+    }
+
+    @Override
     protected void onStop() {
         Tovuti.from(this).stop();
         super.onStop();
@@ -78,6 +92,7 @@ public class MainActivity extends AppCompatActivity implements
     private void checkInternetConnection(final Bundle savedInstanceState) {
         checkLocalDB();
         String dariNotification = getIntent().getStringExtra("streamingRadio");
+        Log.e(TAG, "checkInternetConnection: " + dariNotification);
         if (internetConnection.isNetworkAvailable()) {
             if (dariNotification == null){
                 keHomeFragment(savedInstanceState);
@@ -321,7 +336,7 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onInputStreamingSent(String input) {
+    public void onInputStreamingSent(CharSequence input) {
         activeFragment = input;
     }
 }

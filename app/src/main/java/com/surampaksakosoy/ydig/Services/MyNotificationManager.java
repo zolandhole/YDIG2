@@ -98,6 +98,8 @@ class MyNotificationManager {
     }
 
     void showSmallNotification(String title, String message, Intent intent){
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        intent.putExtra("streamingRadio", "streamingRadio");
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             PendingIntent pendingIntent = PendingIntent
                     .getActivity(context, ID_SMALL_NOTIFICATION, intent, PendingIntent.FLAG_UPDATE_CURRENT);

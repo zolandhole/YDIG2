@@ -32,6 +32,7 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.surampaksakosoy.ydig.dbpanduan.DBKategori;
 import com.surampaksakosoy.ydig.handlers.DBHandler;
 import com.surampaksakosoy.ydig.handlers.HandlerServer;
@@ -119,6 +120,7 @@ public class SplashScreenActivity extends AppCompatActivity {
                 TOKENFCM = instanceIdResult.getToken();
             }
         });
+        FirebaseMessaging.getInstance().subscribeToTopic("STREAMING_RADIO");
     }
 
     private void checkLocalDB() {
