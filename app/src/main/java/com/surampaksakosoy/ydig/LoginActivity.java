@@ -111,15 +111,21 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                             new GraphRequest.GraphJSONObjectCallback() {
                                 @Override
                                 public void onCompleted(JSONObject object, GraphResponse response) {
-                                    try {
-                                        ID_LOGIN = object.getString("id");
-                                        NAMA = object.getString("name");
-                                        EMAIL = object.getString("email");
-                                        SUMBER_LOGIN = "FACEBOOK";
-                                        storeToLocalDB();
-                                    } catch (JSONException e) {
-                                        Log.e(TAG, "onCompleted: "+ e);
-                                        e.printStackTrace();
+                                    if (response != null){
+                                        try {
+                                            ID_LOGIN = object.getString("id");
+                                            NAMA = object.getString("name");
+                                            if (object.getString("email") != null){
+                                                EMAIL = object.getString("email");
+                                            } else {
+                                                EMAIL = "not@shared";
+                                            }
+                                            SUMBER_LOGIN = "FACEBOOK";
+                                            storeToLocalDB();
+                                        } catch (JSONException e) {
+                                            Log.e(TAG, "onCompleted: "+ e);
+                                            e.printStackTrace();
+                                        }
                                     }
                                 }
                             });

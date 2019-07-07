@@ -6,7 +6,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -60,7 +65,6 @@ public class MainActivity extends AppCompatActivity implements
     private boolean backPressExit = false;
     private NoInternetConnection internetConnection;
 
-
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,25 +72,41 @@ public class MainActivity extends AppCompatActivity implements
         initView();
         initListener();
         checkInternetConnection(savedInstanceState);
+        Intent intent = getIntent();
+        String Test = intent.getStringExtra("streamingRadio");
+        Log.e(TAG, "onNewIntent: " + Test);
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        String Test = intent.getStringExtra("streamingRadio");
-        if (Test.equals("streamingRadio")){
-            getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container,
-                    new FragmentStreaming()).commit();
-            navigationView.setCheckedItem(R.id.nav_streaming);
-            FragmentStreaming fragmentStreaming = new FragmentStreaming();
-            fragmentStreaming.updateData(Test);
+    }
+
+    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.e(TAG, "onReceive NO : " + intent.getStringExtra("streamingRadio"));
+            if (intent.getStringExtra("streamingRadio").equals("broadcastRadio")){
+                getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container,
+                new FragmentStreaming()).commitNowAllowingStateLoss();
+                navigationView.setCheckedItem(R.id.nav_streaming);
+                FragmentStreaming fragmentStreaming = new FragmentStreaming();
+                fragmentStreaming.updateData(intent.getStringExtra("streamingRadio"));
+            }
         }
+    };
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        LocalBroadcastManager.getInstance(this).registerReceiver((mMessageReceiver),new IntentFilter("MyData"));
     }
 
     @Override
     protected void onStop() {
         Tovuti.from(this).stop();
         super.onStop();
+//        LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver);
     }
 
     private void checkInternetConnection(final Bundle savedInstanceState) {

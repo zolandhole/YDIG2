@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,7 +21,7 @@ import com.surampaksakosoy.ydig.Services.StreamingService;
 
 public class FragmentStreaming extends Fragment{
 
-    private static final String TAG = "FragmentStreaming";
+//    private static final String TAG = "FragmentStreaming";
     private FragmentStreamingListener listener;
     private Button btnMainkan;
     private BroadcastReceiver broadcastReceiver;
@@ -79,13 +78,15 @@ public class FragmentStreaming extends Fragment{
         broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                getActivity().runOnUiThread(new Runnable() {
-                    @SuppressLint("SetTextI18n")
-                    @Override
-                    public void run() {
-                        btnMainkan.setText("Mainkan");
-                    }
-                });
+                if (getActivity() != null){
+                    getActivity().runOnUiThread(new Runnable() {
+                        @SuppressLint("SetTextI18n")
+                        @Override
+                        public void run() {
+                            btnMainkan.setText("Mainkan");
+                        }
+                    });
+                }
             }
         };
         getActivity().registerReceiver(broadcastReceiver, new IntentFilter("exit"));
@@ -122,13 +123,15 @@ public class FragmentStreaming extends Fragment{
 
     public void updateData(CharSequence newData){
         if (newData.equals("streamingRadio")){
-            getActivity().runOnUiThread(new Runnable() {
-                @SuppressLint("SetTextI18n")
-                @Override
-                public void run() {
-                    btnMainkan.setText("Mainkan");
-                }
-            });
+            if (getActivity() != null){
+                getActivity().runOnUiThread(new Runnable() {
+                    @SuppressLint("SetTextI18n")
+                    @Override
+                    public void run() {
+                        btnMainkan.setText("Mainkan");
+                    }
+                });
+            }
         }
     }
 }

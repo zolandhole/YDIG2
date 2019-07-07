@@ -97,6 +97,45 @@ class MyNotificationManager {
         return null;
     }
 
+    void showStreamingNotification (String title, String message, Intent intent){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+            PendingIntent pendingIntent = PendingIntent.getActivity(context, ID_SMALL_NOTIFICATION, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID);
+            Notification notification;
+            notification = builder
+                    .setSmallIcon(R.drawable.ic_ydig_notif)
+                    .setAutoCancel(true)
+                    .setContentIntent(pendingIntent)
+                    .setContentTitle(title)
+                    .setPriority(NotificationCompat.PRIORITY_MAX)
+                    .setContentText(message)
+                    .build();
+
+            NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+            notificationManager.notify(ID_SMALL_NOTIFICATION, notification);
+        } else {
+            Intent intent1 = new Intent(context, MainActivity.class);
+            PendingIntent pendingIntent;
+
+            pendingIntent = PendingIntent.getActivity(context,556, intent1, PendingIntent.FLAG_UPDATE_CURRENT);
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
+            Notification notification;
+            notification = builder
+                    .setDefaults(Notification.DEFAULT_ALL)
+                    .setPriority(NotificationCompat.PRIORITY_MAX)
+                    .setSmallIcon(R.drawable.ic_ydig_notif)
+                    .setAutoCancel(true)
+                    .setContentIntent(pendingIntent)
+                    .setContentTitle(title)
+                    .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_ydig_notif))
+                    .setContentText(message)
+                    .build();
+            NotificationManager notificationManager =
+                    (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+            notificationManager.notify(555, notification);
+        }
+    }
+
     void showSmallNotification(String title, String message, Intent intent){
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         intent.putExtra("streamingRadio", "streamingRadio");

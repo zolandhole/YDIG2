@@ -19,7 +19,7 @@ public class App extends Application {
     private void creteNotification() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
             NotificationChannel radioChannel = new NotificationChannel(
-                    CHANNEL_ID, "Notifikasi Radio", NotificationManager.IMPORTANCE_LOW
+                    CHANNEL_ID, "Notifikasi Radio", NotificationManager.IMPORTANCE_HIGH
             );
             NotificationManager manager = getSystemService(NotificationManager.class);
             manager.createNotificationChannels(Collections.singletonList(radioChannel));
