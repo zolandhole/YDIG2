@@ -13,15 +13,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.Toast;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
+import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
-import com.surampaksakosoy.ydig.BroadcastReceivers.StreamingReceiver;
 import com.surampaksakosoy.ydig.R;
 import com.surampaksakosoy.ydig.Services.StreamingService;
 
@@ -39,6 +40,9 @@ public class FragmentStreaming extends Fragment{
     private FragmentStreamingListener listener;
     private Button btnMainkan;
     private BroadcastReceiver broadcastReceiver;
+    private LinearLayout linearLayoutServerDown;
+    private NavigationView navigationView;
+    private ProgressBar progressBar;
 
 
     public FragmentStreaming() {
@@ -65,21 +69,28 @@ public class FragmentStreaming extends Fragment{
         CharSequence test = "streaming";
         listener.onInputStreamingSent(test);
         btnMainkan = view.findViewById(R.id.streaming_mainkan);
+        Button btnCobalagi = view.findViewById(R.id.streaming_cobalagi);
+        progressBar = view.findViewById(R.id.streaming_progressBar);
+        progressBar.setVisibility(View.VISIBLE);
+        linearLayoutServerDown = view.findViewById(R.id.serverdown);
+        linearLayoutServerDown.setVisibility(View.GONE);
+        navigationView = getActivity().findViewById(R.id.main_navigation);
         stopStreamingRadio();
         btnMainkan.setOnClickListener(new View.OnClickListener() {
             @SuppressLint("SetTextI18n")
             @Override
             public void onClick(View v) {
-                if (btnMainkan.getText().equals("Hentikan")){
-                    Intent intentExit = new Intent(getActivity().getApplicationContext(), StreamingReceiver.class);
-                    intentExit.setAction("exit");
-                    getActivity().sendBroadcast(intentExit);
-                } else if (btnMainkan.getText().equals("Kembali ke Home")){
-                    Toast.makeText(getActivity().getApplicationContext(), "KEMBALI KE HOME", Toast.LENGTH_SHORT).show();
-                }
-                else {
-                    mainkan();
-                }
+                FragmentHome fragmentHome = new FragmentHome();
+                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, fragmentHome, "TEST").addToBackStack(null).commit();
+                navigationView.setCheckedItem(R.id.nav_home);
+
+            }
+        });
+
+        btnCobalagi.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new MyTask().execute();
             }
         });
         new MyTask().execute();
@@ -183,14 +194,19 @@ public class FragmentStreaming extends Fragment{
         @SuppressLint("SetTextI18n")
         @Override
         protected void onPostExecute(String result) {
-            btnMainkan.setText ("Kembali ke Home");
             if (!result.equals("")){
-                LinearLayout mRoot = getActivity().findViewById(R.id.layout_streaming);
-                Snackbar snackbar = Snackbar.make(mRoot, result, Snackbar.LENGTH_LONG);
-                View sbView = snackbar.getView();
-                sbView.setBackgroundColor(ContextCompat.getColor(getActivity().getApplicationContext(), merahmarun));
-                snackbar.show();
+                if (getActivity().findViewById(R.id.layout_streaming) != null){
+                    RelativeLayout mRoot = getActivity().findViewById(R.id.layout_streaming);
+                    Snackbar snackbar = Snackbar.make(mRoot, result, Snackbar.LENGTH_LONG);
+                    View sbView = snackbar.getView();
+                    sbView.setBackgroundColor(ContextCompat.getColor(getActivity().getApplicationContext(), merahmarun));
+                    snackbar.show();
+                }
+                linearLayoutServerDown.setVisibility(View.VISIBLE);
+            } else {
+                linearLayoutServerDown.setVisibility(View.GONE);
             }
+            progressBar.setVisibility(View.GONE);
         }
     }
 }
