@@ -1,18 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/layout_streaming"
     android:layout_width="match_parent"
-    android:padding="10dp"
     android:layout_height="match_parent">
 
     <ProgressBar
+        android:visibility="gone"
         android:layout_centerInParent="true"
         android:id="@+id/streaming_progressBar"
-        style="?android:attr/progressBarStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
     <LinearLayout
+        android:padding="10dp"
+        android:visibility="gone"
         android:id="@+id/serverdown"
         android:orientation="vertical"
         android:layout_marginTop="50dp"
@@ -70,5 +72,58 @@
             android:paddingLeft="10dp"
             android:paddingRight="0dp" />
     </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/streaming_serverOn"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:textAlignment="center"
+            android:text="@string/belumkomen"
+            android:layout_centerInParent="true"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <LinearLayout
+            android:layout_alignParentBottom="true"
+            android:padding="15dp"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:weightSum="1"
+            android:layout_height="wrap_content"
+            tools:ignore="UselessParent">
+
+            <EditText
+                android:layout_weight="0.7"
+                android:hint="@string/ketikan_pertanyaan"
+                android:padding="10dp"
+                android:paddingStart="20dp"
+                android:paddingLeft="20dp"
+                android:paddingEnd="20dp"
+                android:paddingRight="20dp"
+                android:inputType="textMultiLine"
+                android:overScrollMode="always"
+                android:scrollbarStyle="insideInset"
+                android:scrollbars="vertical"
+                android:background="@drawable/button_putih"
+                android:textCursorDrawable="@null"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:ignore="Autofill" />
+
+            <Button
+                android:layout_gravity="center"
+                android:layout_marginStart="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_weight="0.3"
+                android:background="@drawable/ic_send"
+                android:layout_width="40dp"
+                android:layout_height="30dp" />
+        </LinearLayout>
+
+    </RelativeLayout>
 
 </RelativeLayout>

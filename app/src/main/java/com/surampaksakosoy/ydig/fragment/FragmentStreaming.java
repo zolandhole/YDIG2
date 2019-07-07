@@ -41,6 +41,7 @@ public class FragmentStreaming extends Fragment{
     private Button btnMainkan;
     private BroadcastReceiver broadcastReceiver;
     private LinearLayout linearLayoutServerDown;
+    private RelativeLayout relativeLayoutServerUp;
     private NavigationView navigationView;
     private ProgressBar progressBar;
 
@@ -74,6 +75,8 @@ public class FragmentStreaming extends Fragment{
         progressBar.setVisibility(View.VISIBLE);
         linearLayoutServerDown = view.findViewById(R.id.serverdown);
         linearLayoutServerDown.setVisibility(View.GONE);
+        relativeLayoutServerUp = view.findViewById(R.id.streaming_serverOn);
+        relativeLayoutServerUp.setVisibility(View.GONE);
         navigationView = getActivity().findViewById(R.id.main_navigation);
         stopStreamingRadio();
         btnMainkan.setOnClickListener(new View.OnClickListener() {
@@ -194,7 +197,7 @@ public class FragmentStreaming extends Fragment{
         @SuppressLint("SetTextI18n")
         @Override
         protected void onPostExecute(String result) {
-            if (!result.equals("")){
+            if (result.equals("")){
                 if (getActivity().findViewById(R.id.layout_streaming) != null){
                     RelativeLayout mRoot = getActivity().findViewById(R.id.layout_streaming);
                     Snackbar snackbar = Snackbar.make(mRoot, result, Snackbar.LENGTH_LONG);
@@ -203,8 +206,10 @@ public class FragmentStreaming extends Fragment{
                     snackbar.show();
                 }
                 linearLayoutServerDown.setVisibility(View.VISIBLE);
+                relativeLayoutServerUp.setVisibility(View.GONE);
             } else {
                 linearLayoutServerDown.setVisibility(View.GONE);
+                relativeLayoutServerUp.setVisibility(View.VISIBLE);
             }
             progressBar.setVisibility(View.GONE);
         }

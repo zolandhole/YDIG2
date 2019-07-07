@@ -45,4 +45,6 @@
     <string name="mohonmaaf">Mohon Maaf</string>
     <string name="coba_lagi">Coba Lagi</string>
     <string name="kembali">Kembali</string>
+    <string name="ketikan_pertanyaan">Tanya / Komentar</string>
+    <string name="belumkomen">Jadilah yang pertama bertanya \natau berkomentar </string>
 </resources>
