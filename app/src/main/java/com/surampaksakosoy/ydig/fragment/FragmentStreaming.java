@@ -12,9 +12,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -31,6 +33,8 @@ import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.surampaksakosoy.ydig.R.color.merahmarun;
 
@@ -44,6 +48,7 @@ public class FragmentStreaming extends Fragment{
     private RelativeLayout relativeLayoutServerUp;
     private NavigationView navigationView;
     private ProgressBar progressBar;
+    private EditText editTextPesan;
 
 
     public FragmentStreaming() {
@@ -78,6 +83,11 @@ public class FragmentStreaming extends Fragment{
         relativeLayoutServerUp = view.findViewById(R.id.streaming_serverOn);
         relativeLayoutServerUp.setVisibility(View.GONE);
         navigationView = getActivity().findViewById(R.id.main_navigation);
+
+        editTextPesan = view.findViewById(R.id.streaming_edittext);
+        Button btnSend = view.findViewById(R.id.streaming_sendpesan);
+
+
         stopStreamingRadio();
         btnMainkan.setOnClickListener(new View.OnClickListener() {
             @SuppressLint("SetTextI18n")
@@ -96,8 +106,23 @@ public class FragmentStreaming extends Fragment{
                 new MyTask().execute();
             }
         });
+
+        btnSend.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String pesan = editTextPesan.getText().toString();
+                Toast.makeText(getActivity().getApplicationContext(), pesan, Toast.LENGTH_SHORT).show();
+                kirimKeServer(pesan);
+                editTextPesan.setText("");
+            }
+        });
         new MyTask().execute();
         return view;
+    }
+
+    private void kirimKeServer(String pesan) {
+        List<String> list = new ArrayList<>();
+        list.add(pesan);
     }
 
     @Override
@@ -197,7 +222,7 @@ public class FragmentStreaming extends Fragment{
         @SuppressLint("SetTextI18n")
         @Override
         protected void onPostExecute(String result) {
-            if (result.equals("")){
+            if (!result.equals("")){
                 if (getActivity().findViewById(R.id.layout_streaming) != null){
                     RelativeLayout mRoot = getActivity().findViewById(R.id.layout_streaming);
                     Snackbar snackbar = Snackbar.make(mRoot, result, Snackbar.LENGTH_LONG);

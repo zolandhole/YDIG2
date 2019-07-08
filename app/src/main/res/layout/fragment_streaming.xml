@@ -97,6 +97,7 @@
             tools:ignore="UselessParent">
 
             <EditText
+                android:id="@+id/streaming_edittext"
                 android:layout_weight="0.7"
                 android:hint="@string/ketikan_pertanyaan"
                 android:padding="10dp"
@@ -115,6 +116,7 @@
                 tools:ignore="Autofill" />
 
             <Button
+                android:id="@+id/streaming_sendpesan"
                 android:layout_gravity="center"
                 android:layout_marginStart="10dp"
                 android:layout_marginLeft="10dp"

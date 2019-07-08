@@ -98,8 +98,10 @@ class MyNotificationManager {
     }
 
     void showStreamingNotification (String title, String message, Intent intent){
+        Intent aint = new Intent(context, MainActivity.class);
+        aint.putExtra("streamingRadio", "broadcastRadio");
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
-            PendingIntent pendingIntent = PendingIntent.getActivity(context, ID_SMALL_NOTIFICATION, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+            PendingIntent pendingIntent = PendingIntent.getActivity(context, ID_SMALL_NOTIFICATION, aint, PendingIntent.FLAG_UPDATE_CURRENT);
             NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID);
             Notification notification;
             notification = builder

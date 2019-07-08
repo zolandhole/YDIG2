@@ -1,8 +1,10 @@
 package com.surampaksakosoy.ydig.Services;
 
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -18,11 +20,10 @@ import org.json.JSONObject;
 public class FirebaseService extends FirebaseMessagingService {
 
     private static final String TAG = "FirebaseService";
-    private LocalBroadcastManager broadcastManager;
 
     @Override
     public void onCreate() {
-        broadcastManager = LocalBroadcastManager.getInstance(this);
+
     }
 
     @Override
@@ -48,15 +49,6 @@ public class FirebaseService extends FirebaseMessagingService {
             JSONObject data = jsonObject.getJSONObject("data");
             MyNotificationManager myNotificationManager = new MyNotificationManager(getApplicationContext());
             Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-
-            if (data.has("typeNotif")){
-                String typeNotif = data.getString("typeNotif");
-                if (typeNotif.equals("broadcastRadio")){
-                    Intent i = new Intent("MyData");
-                    i.putExtra("streamingRadio", typeNotif);
-                    broadcastManager.sendBroadcast(i);
-                }
-            }
 
             String title = data.getString("title");
             String message = data.getString("message");

@@ -6,12 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -72,41 +67,44 @@ public class MainActivity extends AppCompatActivity implements
         initView();
         initListener();
         checkInternetConnection(savedInstanceState);
-        Intent intent = getIntent();
-        String Test = intent.getStringExtra("streamingRadio");
-        Log.e(TAG, "onNewIntent: " + Test);
     }
 
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-    }
-
-    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Log.e(TAG, "onReceive NO : " + intent.getStringExtra("streamingRadio"));
-            if (intent.getStringExtra("streamingRadio").equals("broadcastRadio")){
-                getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container,
-                new FragmentStreaming()).commitNowAllowingStateLoss();
-                navigationView.setCheckedItem(R.id.nav_streaming);
-                FragmentStreaming fragmentStreaming = new FragmentStreaming();
-                fragmentStreaming.updateData(intent.getStringExtra("streamingRadio"));
-            }
-        }
-    };
+//    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+//        @Override
+//        public void onReceive(Context context, Intent intent) {
+//            Log.e(TAG, "onReceive NO : " + intent.getStringExtra("streamingRadio"));
+//            if (intent.getStringExtra("streamingRadio").equals("broadcastRadio")){
+//                getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container,
+//                new FragmentStreaming()).commitNowAllowingStateLoss();
+//                navigationView.setCheckedItem(R.id.nav_streaming);
+//                FragmentStreaming fragmentStreaming = new FragmentStreaming();
+//                fragmentStreaming.updateData(intent.getStringExtra("streamingRadio"));
+//            }
+//        }
+//    };
 
     @Override
     protected void onStart() {
         super.onStart();
-        LocalBroadcastManager.getInstance(this).registerReceiver((mMessageReceiver),new IntentFilter("MyData"));
     }
 
     @Override
     protected void onStop() {
         Tovuti.from(this).stop();
         super.onStop();
-//        LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver);
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        Log.e(TAG, "onNewIntent: " + intent.getStringExtra("streamingRadio"));
+        if (intent.getStringExtra("streamingRadio").equals("broadcastRadio")){
+                getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container,
+                new FragmentStreaming()).commitNowAllowingStateLoss();
+                navigationView.setCheckedItem(R.id.nav_streaming);
+                FragmentStreaming fragmentStreaming = new FragmentStreaming();
+                fragmentStreaming.updateData(intent.getStringExtra("streamingRadio"));
+        }
     }
 
     private void checkInternetConnection(final Bundle savedInstanceState) {
@@ -114,10 +112,15 @@ public class MainActivity extends AppCompatActivity implements
         String dariNotification = getIntent().getStringExtra("streamingRadio");
         Log.e(TAG, "checkInternetConnection: " + dariNotification);
         if (internetConnection.isNetworkAvailable()) {
-            if (dariNotification == null){
-                keHomeFragment(savedInstanceState);
+            if (dariNotification != null){
+
+                if (dariNotification.equals("broadcastRadio")){
+                    keStreamingFragment(savedInstanceState);
+                }
+
             } else {
-                keStreamingFragment(savedInstanceState);
+
+                keHomeFragment(savedInstanceState);
             }
         } else {
             if (ID_LOGIN == null){
