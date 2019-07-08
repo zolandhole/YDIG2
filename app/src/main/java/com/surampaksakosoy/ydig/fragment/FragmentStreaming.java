@@ -16,7 +16,6 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -27,14 +26,20 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.surampaksakosoy.ydig.R;
 import com.surampaksakosoy.ydig.Services.StreamingService;
+import com.surampaksakosoy.ydig.handlers.DBHandler;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.surampaksakosoy.ydig.R.color.merahmarun;
 
@@ -49,6 +54,8 @@ public class FragmentStreaming extends Fragment{
     private NavigationView navigationView;
     private ProgressBar progressBar;
     private EditText editTextPesan;
+    private DBHandler dbHandler;
+    private String ID_LOGIN;
 
 
     public FragmentStreaming() {
@@ -87,7 +94,8 @@ public class FragmentStreaming extends Fragment{
         editTextPesan = view.findViewById(R.id.streaming_edittext);
         Button btnSend = view.findViewById(R.id.streaming_sendpesan);
 
-
+        dbHandler = new DBHandler(getActivity().getApplicationContext());
+        checkLocalDB();
         stopStreamingRadio();
         btnMainkan.setOnClickListener(new View.OnClickListener() {
             @SuppressLint("SetTextI18n")
@@ -110,9 +118,10 @@ public class FragmentStreaming extends Fragment{
         btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String pesan = editTextPesan.getText().toString();
-                Toast.makeText(getActivity().getApplicationContext(), pesan, Toast.LENGTH_SHORT).show();
-                kirimKeServer(pesan);
+                String pesan = editTextPesan.getText().toString().trim();
+                if (!pesan.equals("")){
+                    kirimKeServer(pesan);
+                }
                 editTextPesan.setText("");
             }
         });
@@ -121,8 +130,28 @@ public class FragmentStreaming extends Fragment{
     }
 
     private void kirimKeServer(String pesan) {
+        Date c = Calendar.getInstance().getTime();
+        System.out.println("Current time => " + c);
+
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat df = new SimpleDateFormat("dd-MMM-yyyy");
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat tf = new SimpleDateFormat("HH:mm");
+        String tanggal = df.format(c);
+        String waktu = tf.format(c);
+
         List<String> list = new ArrayList<>();
         list.add(pesan);
+        list.add(tanggal);
+        list.add(waktu);
+        list.add(ID_LOGIN);
+
+        Log.e(TAG, "kirimKeServer: " + ID_LOGIN);
+    }
+
+    private void checkLocalDB() {
+        ArrayList<HashMap<String, String>> userDB = dbHandler.getUser(1);
+        for (Map<String, String> map : userDB) {
+            ID_LOGIN = map.get("id_login");
+        }
     }
 
     @Override
@@ -148,7 +177,6 @@ public class FragmentStreaming extends Fragment{
         };
         getActivity().registerReceiver(broadcastReceiver, new IntentFilter("exit"));
     }
-
 
     @Override
     public void onPause() {
