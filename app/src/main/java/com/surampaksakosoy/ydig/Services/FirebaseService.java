@@ -48,12 +48,12 @@ public class FirebaseService extends FirebaseMessagingService {
         try {
             JSONObject data = jsonObject.getJSONObject("data");
             MyNotificationManager myNotificationManager = new MyNotificationManager(getApplicationContext());
-            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+//            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
 
             String title = data.getString("title");
             String message = data.getString("message");
 
-            myNotificationManager.showStreamingNotification(title,message,intent);
+            myNotificationManager.showStreamingNotification(title,message);
         } catch (JSONException e) {
             e.printStackTrace();
             Log.e(TAG, "sendPushNotification: " + e);

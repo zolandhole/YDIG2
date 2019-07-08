@@ -177,6 +177,7 @@ public class StreamingService extends Service implements MediaPlayer.OnCompletio
         builder.setSmallIcon(R.drawable.ic_ydig_notif)
                 .setTicker("Mendengarkan " + name)
                 .setOngoing(true)
+                .setPriority(NotificationCompat.PRIORITY_LOW)
                 .setContentTitle(name)
                 .setContentText("Oleh YDIG")
                 .setContentIntent(pendingIntentOpenApp)
