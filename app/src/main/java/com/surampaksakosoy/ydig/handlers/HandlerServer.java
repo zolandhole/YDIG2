@@ -41,7 +41,7 @@ public class HandlerServer {
                             JSONObject jsonObject = new JSONObject(response);
                             if (jsonObject.optString("error").equals("true")) {
                                 callback.onFailed(jsonObject.getString("pesan"));
-                            } else {
+                            } else if (jsonObject.optString("error").equals("false")){
                                 JSONArray jsonArray = jsonObject.getJSONArray("pesan");
                                 callback.onSuccess(jsonArray);
 
@@ -66,6 +66,7 @@ public class HandlerServer {
                 }) {
             @Override
             protected Map<String, String> getParams() {
+                Log.e(TAG, "getParams: " + list);
                 Map<String, String> params = new HashMap<>();
                 params.put("params", String.valueOf(list));
                 return params;
@@ -98,6 +99,12 @@ public class HandlerServer {
                 break;
             case "GET_UPDATE":
                 URL = PublicAddress.GET_UPDATE;
+                break;
+            case "SEND_COMMENT_DATA":
+                URL = PublicAddress.SEND_COMMENT_DATA;
+                break;
+            case "LOAD_COMMENT_DATA":
+                URL = PublicAddress.LOAD_COMMENT_DATA;
                 break;
         }
         return URL;

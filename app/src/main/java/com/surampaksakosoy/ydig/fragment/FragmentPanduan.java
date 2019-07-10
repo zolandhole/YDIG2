@@ -3,7 +3,6 @@ package com.surampaksakosoy.ydig.fragment;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,19 +11,13 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.androidstudy.networkmanager.Monitor;
 import com.androidstudy.networkmanager.Tovuti;
-import com.google.android.material.navigation.NavigationView;
-import com.surampaksakosoy.ydig.MainActivity;
 import com.surampaksakosoy.ydig.R;
-import com.surampaksakosoy.ydig.SplashScreenActivity;
 import com.surampaksakosoy.ydig.adapters.AdapterPanduan;
 import com.surampaksakosoy.ydig.dbpanduan.DBKategori;
 import com.surampaksakosoy.ydig.models.ModelPanduan;
@@ -33,14 +26,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FragmentPanduan extends Fragment {
-    private static final String TAG = "FragmentPanduan";
+//    private static final String TAG = "FragmentPanduan";
     private TextView textView;
     private RecyclerView recyclerView;
     private List<ModelPanduan> modelPanduans;
     private ProgressBar progressBar;
     private FragmentPanduanListener listener;
     private AdapterPanduan adapterPanduan;
-    private DrawerLayout drawerLayout;
 
 
     public FragmentPanduan() {
@@ -72,7 +64,7 @@ public class FragmentPanduan extends Fragment {
         progressBar = view.findViewById(R.id.panduan_progressbar);
         progressBar.setVisibility(View.VISIBLE);
         adapterPanduan = new AdapterPanduan(modelPanduans, getActivity().getApplicationContext());
-        drawerLayout = view.findViewById(R.id.main_drawer_layout);
+//        DrawerLayout drawerLayout = view.findViewById(R.id.main_drawer_layout);
 
         listener.onInputPanduanSent("panduan");
         getDataFromDB();

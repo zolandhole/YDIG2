@@ -1,18 +1,8 @@
 package com.surampaksakosoy.ydig.Services;
-
-import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.os.Bundle;
 import android.util.Log;
-
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
-import com.surampaksakosoy.ydig.MainActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;

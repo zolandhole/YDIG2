@@ -16,18 +16,31 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.surampaksakosoy.ydig.R;
 import com.surampaksakosoy.ydig.Services.StreamingService;
+import com.surampaksakosoy.ydig.adapters.AdapterStreaming;
 import com.surampaksakosoy.ydig.handlers.DBHandler;
+import com.surampaksakosoy.ydig.handlers.HandlerServer;
+import com.surampaksakosoy.ydig.interfaces.VolleyCallback;
+import com.surampaksakosoy.ydig.models.ModelStreaming;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -56,7 +69,11 @@ public class FragmentStreaming extends Fragment{
     private EditText editTextPesan;
     private DBHandler dbHandler;
     private String ID_LOGIN;
+    private TextView textViewNoComment;
 
+    private RecyclerView recyclerView;
+    private List<ModelStreaming> modelStreamings;
+    private AdapterStreaming adapterStreaming;
 
     public FragmentStreaming() {
     }
@@ -90,6 +107,8 @@ public class FragmentStreaming extends Fragment{
         relativeLayoutServerUp = view.findViewById(R.id.streaming_serverOn);
         relativeLayoutServerUp.setVisibility(View.GONE);
         navigationView = getActivity().findViewById(R.id.main_navigation);
+        textViewNoComment = view.findViewById(R.id.streaming_no_comment);
+        textViewNoComment.setVisibility(View.GONE);
 
         editTextPesan = view.findViewById(R.id.streaming_edittext);
         Button btnSend = view.findViewById(R.id.streaming_sendpesan);
@@ -118,7 +137,7 @@ public class FragmentStreaming extends Fragment{
         btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String pesan = editTextPesan.getText().toString().trim();
+                String pesan = editTextPesan.getText().toString();
                 if (!pesan.equals("")){
                     kirimKeServer(pesan);
                 }
@@ -126,12 +145,73 @@ public class FragmentStreaming extends Fragment{
             }
         });
         new MyTask().execute();
+
+        recyclerView = view.findViewById(R.id.streaming_recyclerview);
+        getData();
+
         return view;
+    }
+
+    private void getData() {
+        List<String> list = new ArrayList<>();
+        list.add("0");
+        HandlerServer handlerServer = new HandlerServer(getActivity().getApplicationContext(), "LOAD_COMMENT_DATA");
+        synchronized (getActivity().getApplicationContext()){
+            handlerServer.getList(new VolleyCallback() {
+                @Override
+                public void onFailed(String result) {
+                    textViewNoComment.setVisibility(View.VISIBLE);
+                }
+
+                @Override
+                public void onSuccess(JSONArray jsonArray) {
+                    prosesResult(jsonArray);
+                }
+            }, list);
+        }
+    }
+
+    private void prosesResult(JSONArray jsonArray) {
+        List<ModelStreaming> list = new ArrayList<>();
+            try {
+                JSONObject dataServer = null;
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    dataServer = jsonArray.getJSONObject(i);
+                    JSONObject isiData = dataServer.getJSONObject("data");
+                    list.add(new ModelStreaming(
+                            Integer.parseInt(dataServer.getString("id")),
+                            isiData.getString("pesan"),
+                            isiData.getString("tanggal"),
+                            isiData.getString("waktu"),
+                            isiData.getString("id_login")
+                    ));
+                }
+                tampilkanSuccess(list);
+            } catch (JSONException e) {
+                Log.e(TAG, "prosesResult: " + e);
+                e.printStackTrace();
+            }
+    }
+
+    private void tampilkanSuccess(List<ModelStreaming> result) {
+        Log.e(TAG, "tampilkanSuccess: " + result.size());
+        if (result.isEmpty()){
+            textViewNoComment.setVisibility(View.VISIBLE);
+            recyclerView.setVisibility(View.GONE);
+        } else {
+            textViewNoComment.setVisibility(View.GONE);
+            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity().getApplicationContext());
+            adapterStreaming = new AdapterStreaming(result,getActivity().getApplicationContext());
+            recyclerView.setLayoutManager(linearLayoutManager);
+            recyclerView.setItemAnimator(new DefaultItemAnimator());
+            recyclerView.setAdapter(adapterStreaming);
+            recyclerView.setVisibility(View.VISIBLE);
+            progressBar.setVisibility(View.GONE);
+        }
     }
 
     private void kirimKeServer(String pesan) {
         Date c = Calendar.getInstance().getTime();
-        System.out.println("Current time => " + c);
 
         @SuppressLint("SimpleDateFormat") SimpleDateFormat df = new SimpleDateFormat("dd-MMM-yyyy");
         @SuppressLint("SimpleDateFormat") SimpleDateFormat tf = new SimpleDateFormat("HH:mm");
@@ -144,7 +224,21 @@ public class FragmentStreaming extends Fragment{
         list.add(waktu);
         list.add(ID_LOGIN);
 
-        Log.e(TAG, "kirimKeServer: " + ID_LOGIN);
+        HandlerServer handlerServer = new HandlerServer(getActivity().getApplicationContext(),"SEND_COMMENT_DATA");
+        synchronized (getActivity().getApplicationContext()){
+            handlerServer.getList(new VolleyCallback() {
+                @Override
+                public void onFailed(String result) {
+                    Log.e(TAG, "onFailed: " + result);
+//                    Toast.makeText(getActivity().getApplicationContext(), result, Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onSuccess(JSONArray jsonArray) {
+                    Toast.makeText(getActivity().getApplicationContext(), "Pesan Terkirim", Toast.LENGTH_SHORT).show();
+                }
+            },list);
+        }
     }
 
     private void checkLocalDB() {
@@ -250,7 +344,7 @@ public class FragmentStreaming extends Fragment{
         @SuppressLint("SetTextI18n")
         @Override
         protected void onPostExecute(String result) {
-            if (!result.equals("")){
+            if (result.equals("")){
                 if (getActivity().findViewById(R.id.layout_streaming) != null){
                     RelativeLayout mRoot = getActivity().findViewById(R.id.layout_streaming);
                     Snackbar snackbar = Snackbar.make(mRoot, result, Snackbar.LENGTH_LONG);

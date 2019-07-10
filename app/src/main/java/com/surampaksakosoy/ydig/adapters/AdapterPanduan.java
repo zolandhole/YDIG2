@@ -22,7 +22,6 @@ public class AdapterPanduan extends RecyclerView.Adapter<AdapterPanduan.Holder> 
 
     private List<ModelPanduan> modelPanduan;
     private Context context;
-//    private static final String TAG = "AdapterPanduan";
 
     public AdapterPanduan(List<ModelPanduan> modelPanduans, Context context){
         this.modelPanduan = modelPanduans;

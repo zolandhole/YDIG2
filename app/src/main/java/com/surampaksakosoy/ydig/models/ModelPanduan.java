@@ -18,10 +18,6 @@ public class ModelPanduan {
         return id;
     }
 
-//    public void setId(int id) {
-//        this.id = id;
-//    }
-
     public String getPanduan_id() {
         return panduan_id;
     }

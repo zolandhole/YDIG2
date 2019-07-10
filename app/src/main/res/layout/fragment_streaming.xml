@@ -79,6 +79,7 @@
         android:layout_height="match_parent">
 
         <TextView
+            android:id="@+id/streaming_no_comment"
             android:textStyle="bold"
             android:textSize="18sp"
             android:textAlignment="center"
@@ -86,6 +87,11 @@
             android:layout_centerInParent="true"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/streaming_recyclerview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
 
         <LinearLayout
             android:layout_alignParentBottom="true"
