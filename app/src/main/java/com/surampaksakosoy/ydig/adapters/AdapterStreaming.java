@@ -1,6 +1,5 @@
 package com.surampaksakosoy.ydig.adapters;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,11 +16,9 @@ import java.util.List;
 public class AdapterStreaming extends RecyclerView.Adapter<AdapterStreaming.Holder> {
 
     private List<ModelStreaming> modelStreaming;
-    private Context context;
 
-    public AdapterStreaming(List<ModelStreaming> modelStreamings, Context context){
+    public AdapterStreaming(List<ModelStreaming> modelStreamings){
         this.modelStreaming = modelStreamings;
-        this.context = context;
     }
 
     @NonNull

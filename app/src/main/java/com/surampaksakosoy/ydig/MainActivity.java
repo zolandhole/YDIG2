@@ -30,6 +30,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.surampaksakosoy.ydig.fragment.FragmentHome;
 import com.surampaksakosoy.ydig.fragment.FragmentPanduan;
 import com.surampaksakosoy.ydig.fragment.FragmentStreaming;
@@ -69,23 +70,10 @@ public class MainActivity extends AppCompatActivity implements
         checkInternetConnection(savedInstanceState);
     }
 
-//    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
-//        @Override
-//        public void onReceive(Context context, Intent intent) {
-//            Log.e(TAG, "onReceive NO : " + intent.getStringExtra("streamingRadio"));
-//            if (intent.getStringExtra("streamingRadio").equals("broadcastRadio")){
-//                getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container,
-//                new FragmentStreaming()).commitNowAllowingStateLoss();
-//                navigationView.setCheckedItem(R.id.nav_streaming);
-//                FragmentStreaming fragmentStreaming = new FragmentStreaming();
-//                fragmentStreaming.updateData(intent.getStringExtra("streamingRadio"));
-//            }
-//        }
-//    };
-
     @Override
     protected void onStart() {
         super.onStart();
+        FirebaseMessaging.getInstance().subscribeToTopic("STREAMING_RADIO");
     }
 
     @Override

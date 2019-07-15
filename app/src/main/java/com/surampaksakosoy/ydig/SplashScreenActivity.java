@@ -120,7 +120,7 @@ public class SplashScreenActivity extends AppCompatActivity {
                 TOKENFCM = instanceIdResult.getToken();
             }
         });
-        FirebaseMessaging.getInstance().subscribeToTopic("STREAMING_RADIO");
+//        FirebaseMessaging.getInstance().subscribeToTopic("STREAMING_RADIO");
     }
 
     private void checkLocalDB() {

@@ -1,11 +1,19 @@
 package com.surampaksakosoy.ydig.Services;
+import android.content.Intent;
 import android.util.Log;
+
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
+import com.surampaksakosoy.ydig.MainActivity;
+import com.surampaksakosoy.ydig.fragment.FragmentStreaming;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class FirebaseService extends FirebaseMessagingService {
 
@@ -37,13 +45,26 @@ public class FirebaseService extends FirebaseMessagingService {
     private void sendPushNotification(JSONObject jsonObject) {
         try {
             JSONObject data = jsonObject.getJSONObject("data");
-            MyNotificationManager myNotificationManager = new MyNotificationManager(getApplicationContext());
-//            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
 
-            String title = data.getString("title");
-            String message = data.getString("message");
+            String typeNotif = data.getString("typeNotif");
+            Log.e(TAG, "sendPushNotification: " + typeNotif);
+            if (typeNotif.equals("streamingTanya")){
 
-            myNotificationManager.showStreamingNotification(title,message);
+                ArrayList<String> list = new ArrayList<>();
+                list.add(data.getString("id"));
+                list.add(data.getString("pesan"));
+                list.add(data.getString("tanggal"));
+                list.add(data.getString("tanggal"));
+                list.add(data.getString("id_login"));
+                Intent localintent = new Intent("PESANBARU");
+                localintent.putStringArrayListExtra("DATANOTIF", list);
+                LocalBroadcastManager.getInstance(this).sendBroadcast(localintent);
+            } else {
+                String title = data.getString("title");
+                String message = data.getString("message");
+                MyNotificationManager myNotificationManager = new MyNotificationManager(getApplicationContext());
+                myNotificationManager.showStreamingNotification(title,message);
+            }
         } catch (JSONException e) {
             e.printStackTrace();
             Log.e(TAG, "sendPushNotification: " + e);

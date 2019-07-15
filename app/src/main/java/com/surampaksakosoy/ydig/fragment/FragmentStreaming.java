@@ -23,13 +23,14 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.surampaksakosoy.ydig.R;
 import com.surampaksakosoy.ydig.Services.StreamingService;
 import com.surampaksakosoy.ydig.adapters.AdapterStreaming;
@@ -70,10 +71,19 @@ public class FragmentStreaming extends Fragment{
     private DBHandler dbHandler;
     private String ID_LOGIN;
     private TextView textViewNoComment;
+    private AdapterStreaming adapterStreaming;
 
     private RecyclerView recyclerView;
     private List<ModelStreaming> modelStreamings;
-    private AdapterStreaming adapterStreaming;
+    private LinearLayoutManager linearLayoutManager;
+
+    private BroadcastReceiver localbroadcast = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            ArrayList<String> dataPesan = intent.getStringArrayListExtra("DATANOTIF");
+            pesanBaru(dataPesan);
+        }
+    };
 
     public FragmentStreaming() {
     }
@@ -109,6 +119,10 @@ public class FragmentStreaming extends Fragment{
         navigationView = getActivity().findViewById(R.id.main_navigation);
         textViewNoComment = view.findViewById(R.id.streaming_no_comment);
         textViewNoComment.setVisibility(View.GONE);
+
+        FirebaseMessaging.getInstance().subscribeToTopic("streamingTanya");
+
+        LocalBroadcastManager.getInstance(getActivity().getApplicationContext()).registerReceiver(localbroadcast, new IntentFilter("PESANBARU"));
 
         editTextPesan = view.findViewById(R.id.streaming_edittext);
         Button btnSend = view.findViewById(R.id.streaming_sendpesan);
@@ -152,6 +166,24 @@ public class FragmentStreaming extends Fragment{
         return view;
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        getActivity().unregisterReceiver(broadcastReceiver);
+        LocalBroadcastManager.getInstance(getActivity().getApplicationContext()).unregisterReceiver(localbroadcast);
+    }
+
+    private void pesanBaru(ArrayList<String> dataPesan) {
+
+        ModelStreaming item = (new ModelStreaming(
+                Integer.parseInt(dataPesan.get(0)),dataPesan.get(1),dataPesan.get(2),dataPesan.get(3),dataPesan.get(4)
+        ));
+        int insertIndex = 0;
+        modelStreamings.add(insertIndex, item);
+        adapterStreaming.notifyItemInserted(insertIndex);
+        linearLayoutManager.scrollToPosition(0);
+    }
+
     private void getData() {
         List<String> list = new ArrayList<>();
         list.add("0");
@@ -174,7 +206,7 @@ public class FragmentStreaming extends Fragment{
     private void prosesResult(JSONArray jsonArray) {
         List<ModelStreaming> list = new ArrayList<>();
             try {
-                JSONObject dataServer = null;
+                JSONObject dataServer;
                 for (int i = 0; i < jsonArray.length(); i++) {
                     dataServer = jsonArray.getJSONObject(i);
                     JSONObject isiData = dataServer.getJSONObject("data");
@@ -194,19 +226,21 @@ public class FragmentStreaming extends Fragment{
     }
 
     private void tampilkanSuccess(List<ModelStreaming> result) {
+        this.modelStreamings = result;
         Log.e(TAG, "tampilkanSuccess: " + result.size());
         if (result.isEmpty()){
             textViewNoComment.setVisibility(View.VISIBLE);
             recyclerView.setVisibility(View.GONE);
         } else {
             textViewNoComment.setVisibility(View.GONE);
-            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity().getApplicationContext());
-            adapterStreaming = new AdapterStreaming(result,getActivity().getApplicationContext());
+            linearLayoutManager = new LinearLayoutManager(getActivity().getApplicationContext());
+            adapterStreaming = new AdapterStreaming(modelStreamings);
             recyclerView.setLayoutManager(linearLayoutManager);
             recyclerView.setItemAnimator(new DefaultItemAnimator());
             recyclerView.setAdapter(adapterStreaming);
             recyclerView.setVisibility(View.VISIBLE);
             progressBar.setVisibility(View.GONE);
+            linearLayoutManager.scrollToPosition(0);
         }
     }
 
@@ -258,6 +292,7 @@ public class FragmentStreaming extends Fragment{
         broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
+                Log.e(TAG, "onReceive stopStreamingRadio: " + intent);
                 if (getActivity() != null){
                     getActivity().runOnUiThread(new Runnable() {
                         @SuppressLint("SetTextI18n")
