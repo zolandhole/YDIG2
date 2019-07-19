@@ -88,49 +88,57 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/streaming_recyclerview"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-
         <LinearLayout
-            android:layout_alignParentBottom="true"
-            android:padding="15dp"
-            android:orientation="horizontal"
+            android:orientation="vertical"
+            android:weightSum="2"
             android:layout_width="match_parent"
-            android:weightSum="1"
-            android:layout_height="wrap_content"
-            tools:ignore="UselessParent">
+            android:layout_height="match_parent">
 
-            <EditText
-                android:id="@+id/streaming_edittext"
-                android:layout_weight="0.7"
-                android:hint="@string/ketikan_pertanyaan"
-                android:padding="10dp"
-                android:paddingStart="20dp"
-                android:paddingLeft="20dp"
-                android:paddingEnd="20dp"
-                android:paddingRight="20dp"
-                android:inputType="textMultiLine"
-                android:overScrollMode="always"
-                android:scrollbarStyle="insideInset"
-                android:scrollbars="vertical"
-                android:background="@drawable/button_putih"
-                android:textCursorDrawable="@null"
+            <androidx.recyclerview.widget.RecyclerView
+                android:layout_weight="2"
+                android:id="@+id/streaming_recyclerview"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                tools:ignore="Autofill" />
+                android:layout_height="0dp" />
 
-            <Button
-                android:id="@+id/streaming_sendpesan"
-                android:layout_gravity="center"
-                android:layout_marginStart="10dp"
-                android:layout_marginLeft="10dp"
-                android:layout_weight="0.3"
-                android:background="@drawable/ic_send"
-                android:layout_width="40dp"
-                android:layout_height="30dp" />
+            <LinearLayout
+                android:padding="10dp"
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:weightSum="1"
+                android:layout_height="wrap_content"
+                tools:ignore="UselessParent">
+
+                <EditText
+                    android:id="@+id/streaming_edittext"
+                    android:layout_weight="0.7"
+                    android:hint="@string/ketikan_pertanyaan"
+                    android:padding="10dp"
+                    android:paddingStart="20dp"
+                    android:paddingLeft="20dp"
+                    android:paddingEnd="20dp"
+                    android:paddingRight="20dp"
+                    android:inputType="textMultiLine"
+                    android:overScrollMode="always"
+                    android:scrollbarStyle="insideInset"
+                    android:scrollbars="vertical"
+                    android:background="@drawable/button_putih"
+                    android:textCursorDrawable="@null"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    tools:ignore="Autofill" />
+
+                <Button
+                    android:id="@+id/streaming_sendpesan"
+                    android:layout_gravity="center"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_weight="0.3"
+                    android:background="@drawable/ic_send"
+                    android:layout_width="40dp"
+                    android:layout_height="30dp" />
+            </LinearLayout>
         </LinearLayout>
+
 
     </RelativeLayout>
 

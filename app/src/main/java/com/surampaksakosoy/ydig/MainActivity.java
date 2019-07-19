@@ -31,6 +31,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.surampaksakosoy.ydig.Services.StreamingService;
 import com.surampaksakosoy.ydig.fragment.FragmentHome;
 import com.surampaksakosoy.ydig.fragment.FragmentPanduan;
 import com.surampaksakosoy.ydig.fragment.FragmentStreaming;
@@ -334,6 +335,14 @@ public class MainActivity extends AppCompatActivity implements
         }
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.e(TAG, "onDestroy: ");
+        Intent serviceOn = new Intent(this, StreamingService.class);
+        stopService(serviceOn);
     }
 
     @Override

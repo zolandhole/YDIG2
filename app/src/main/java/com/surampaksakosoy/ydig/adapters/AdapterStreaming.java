@@ -32,7 +32,6 @@ public class AdapterStreaming extends RecyclerView.Adapter<AdapterStreaming.Hold
     public void onBindViewHolder(@NonNull AdapterStreaming.Holder holder, int position) {
         final ModelStreaming streaming = modelStreaming.get(position);
         holder.textViewDari.setText(streaming.getId_login());
-        holder.textViewTanggal.setText(streaming.getWaktu());
         holder.textViewJam.setText(streaming.getJam());
         holder.textViewPesan.setText(streaming.getPesan());
     }
@@ -44,12 +43,11 @@ public class AdapterStreaming extends RecyclerView.Adapter<AdapterStreaming.Hold
 
     class Holder extends RecyclerView.ViewHolder{
 
-        TextView textViewDari, textViewTanggal, textViewJam, textViewPesan;
+        TextView textViewDari, textViewJam, textViewPesan;
 
         Holder(@NonNull View itemView) {
             super(itemView);
             textViewDari = itemView.findViewById(R.id.streaming_dari);
-            textViewTanggal = itemView.findViewById(R.id.streaming_tanggal);
             textViewJam = itemView.findViewById(R.id.streaming_jam);
             textViewPesan = itemView.findViewById(R.id.streaming_pesan);
         }

@@ -62,7 +62,6 @@ public class FragmentStreaming extends Fragment{
     private static final String TAG = "FragmentStreaming";
     private FragmentStreamingListener listener;
     private Button btnMainkan;
-    private BroadcastReceiver broadcastReceiver;
     private LinearLayout linearLayoutServerDown;
     private RelativeLayout relativeLayoutServerUp;
     private NavigationView navigationView;
@@ -82,6 +81,22 @@ public class FragmentStreaming extends Fragment{
         public void onReceive(Context context, Intent intent) {
             ArrayList<String> dataPesan = intent.getStringArrayListExtra("DATANOTIF");
             pesanBaru(dataPesan);
+        }
+    };
+
+    private BroadcastReceiver streamingBroadcast = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.e(TAG, "onReceive stopStreamingRadio: " + intent);
+            if (getActivity() != null){
+                getActivity().runOnUiThread(new Runnable() {
+                    @SuppressLint("SetTextI18n")
+                    @Override
+                    public void run() {
+                        btnMainkan.setText("Mainkan");
+                    }
+                });
+            }
         }
     };
 
@@ -124,12 +139,13 @@ public class FragmentStreaming extends Fragment{
 
         LocalBroadcastManager.getInstance(getActivity().getApplicationContext()).registerReceiver(localbroadcast, new IntentFilter("PESANBARU"));
 
+        getActivity().registerReceiver(streamingBroadcast, new IntentFilter("EXIT"));
+
         editTextPesan = view.findViewById(R.id.streaming_edittext);
         Button btnSend = view.findViewById(R.id.streaming_sendpesan);
 
         dbHandler = new DBHandler(getActivity().getApplicationContext());
         checkLocalDB();
-        stopStreamingRadio();
         btnMainkan.setOnClickListener(new View.OnClickListener() {
             @SuppressLint("SetTextI18n")
             @Override
@@ -169,7 +185,7 @@ public class FragmentStreaming extends Fragment{
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        getActivity().unregisterReceiver(broadcastReceiver);
+        getActivity().unregisterReceiver(streamingBroadcast);
         LocalBroadcastManager.getInstance(getActivity().getApplicationContext()).unregisterReceiver(localbroadcast);
     }
 
@@ -264,7 +280,6 @@ public class FragmentStreaming extends Fragment{
                 @Override
                 public void onFailed(String result) {
                     Log.e(TAG, "onFailed: " + result);
-//                    Toast.makeText(getActivity().getApplicationContext(), result, Toast.LENGTH_SHORT).show();
                 }
 
                 @Override
@@ -280,37 +295,6 @@ public class FragmentStreaming extends Fragment{
         for (Map<String, String> map : userDB) {
             ID_LOGIN = map.get("id_login");
         }
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        stopStreamingRadio();
-    }
-
-    private void stopStreamingRadio() {
-        broadcastReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                Log.e(TAG, "onReceive stopStreamingRadio: " + intent);
-                if (getActivity() != null){
-                    getActivity().runOnUiThread(new Runnable() {
-                        @SuppressLint("SetTextI18n")
-                        @Override
-                        public void run() {
-                            btnMainkan.setText("Mainkan");
-                        }
-                    });
-                }
-            }
-        };
-        getActivity().registerReceiver(broadcastReceiver, new IntentFilter("exit"));
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        getActivity().unregisterReceiver(broadcastReceiver);
     }
 
     @SuppressLint("SetTextI18n")
@@ -379,7 +363,7 @@ public class FragmentStreaming extends Fragment{
         @SuppressLint("SetTextI18n")
         @Override
         protected void onPostExecute(String result) {
-            if (result.equals("")){
+            if (!result.equals("")){
                 if (getActivity().findViewById(R.id.layout_streaming) != null){
                     RelativeLayout mRoot = getActivity().findViewById(R.id.layout_streaming);
                     Snackbar snackbar = Snackbar.make(mRoot, result, Snackbar.LENGTH_LONG);
