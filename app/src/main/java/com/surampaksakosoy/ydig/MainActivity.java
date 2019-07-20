@@ -359,4 +359,6 @@ public class MainActivity extends AppCompatActivity implements
     public void onInputStreamingSent(CharSequence input) {
         activeFragment = input;
     }
+
+
 }

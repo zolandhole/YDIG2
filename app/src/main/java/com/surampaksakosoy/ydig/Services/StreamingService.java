@@ -6,6 +6,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.IBinder;
 import android.telephony.PhoneStateListener;
@@ -67,6 +68,33 @@ public class StreamingService extends Service implements MediaPlayer.OnCompletio
         mediaPlayer.setOnInfoListener(this);
         mediaPlayer.setOnBufferingUpdateListener(this);
         mediaPlayer.reset();
+
+        AudioManager.OnAudioFocusChangeListener onAudioFocusChangeListener = new AudioManager.OnAudioFocusChangeListener() {
+            @Override
+            public void onAudioFocusChange(int focusChange) {
+                switch (focusChange) {
+                    case (AudioManager.AUDIOFOCUS_LOSS):
+                        break;
+                    case (AudioManager.AUDIOFOCUS_LOSS_TRANSIENT):
+                        pauseMedia();
+                        break;
+                    case (AudioManager.AUDIOFOCUS_GAIN):
+                        playMedia();
+                        break;
+                    case (AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK):
+                        mediaPlayer.setVolume(0.1f, 0.1f);
+                        break;
+                }
+            }
+        };
+
+        AudioManager audioManager = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
+        int mediaresult = audioManager.requestAudioFocus(onAudioFocusChangeListener,
+                AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
+
+        if (mediaresult == AudioManager.AUDIOFOCUS_REQUEST_GRANTED){
+            Log.e(TAG, "onCreate: GRANTED");
+        }
     }
 
     @Override
@@ -118,15 +146,6 @@ public class StreamingService extends Service implements MediaPlayer.OnCompletio
             mediaPlayer.pause();
         }
     }
-
-//    private void exitMedia(){
-//        // close App
-//        if (mediaPlayer != null){
-//            mediaPlayer.stop();
-//            mediaPlayer.release();
-//            mediaPlayer = null;
-//        }
-//    }
 
     private void initIfPhoneCall(){
         TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
