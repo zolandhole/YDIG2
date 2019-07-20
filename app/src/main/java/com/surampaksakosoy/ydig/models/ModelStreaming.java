@@ -2,14 +2,15 @@ package com.surampaksakosoy.ydig.models;
 
 public class ModelStreaming {
     private int id;
-    private String pesan, waktu, jam, id_login;
+    private String pesan, waktu, jam, id_login, photo;
 
-    public ModelStreaming(int id, String pesan, String waktu, String jam, String id_login) {
+    public ModelStreaming(int id, String pesan, String waktu, String jam, String id_login, String photo) {
         this.id = id;
         this.pesan = pesan;
         this.waktu = waktu;
         this.jam = jam;
         this.id_login = id_login;
+        this.photo = photo;
     }
 
     public int getId() {
@@ -30,5 +31,9 @@ public class ModelStreaming {
 
     public String getId_login() {
         return id_login;
+    }
+
+    public String getPhoto() {
+        return photo;
     }
 }

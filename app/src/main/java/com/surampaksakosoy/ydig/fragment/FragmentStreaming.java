@@ -192,7 +192,7 @@ public class FragmentStreaming extends Fragment{
     private void pesanBaru(ArrayList<String> dataPesan) {
 
         ModelStreaming item = (new ModelStreaming(
-                Integer.parseInt(dataPesan.get(0)),dataPesan.get(1),dataPesan.get(2),dataPesan.get(3),dataPesan.get(4)
+                Integer.parseInt(dataPesan.get(0)),dataPesan.get(1),dataPesan.get(2),dataPesan.get(3),dataPesan.get(4),dataPesan.get(5)
         ));
         int insertIndex = 0;
         modelStreamings.add(insertIndex, item);
@@ -203,6 +203,7 @@ public class FragmentStreaming extends Fragment{
     private void getData() {
         List<String> list = new ArrayList<>();
         list.add("0");
+        list.add("test");
         HandlerServer handlerServer = new HandlerServer(getActivity().getApplicationContext(), "LOAD_COMMENT_DATA");
         synchronized (getActivity().getApplicationContext()){
             handlerServer.getList(new VolleyCallback() {
@@ -231,7 +232,8 @@ public class FragmentStreaming extends Fragment{
                             isiData.getString("pesan"),
                             isiData.getString("tanggal"),
                             isiData.getString("waktu"),
-                            isiData.getString("id_login")
+                            isiData.getString("id_login"),
+                            isiData.getString("photo")
                     ));
                 }
                 tampilkanSuccess(list);
@@ -250,7 +252,7 @@ public class FragmentStreaming extends Fragment{
         } else {
             textViewNoComment.setVisibility(View.GONE);
             linearLayoutManager = new LinearLayoutManager(getActivity().getApplicationContext());
-            adapterStreaming = new AdapterStreaming(modelStreamings);
+            adapterStreaming = new AdapterStreaming(modelStreamings, getActivity().getApplicationContext());
             recyclerView.setLayoutManager(linearLayoutManager);
             recyclerView.setItemAnimator(new DefaultItemAnimator());
             recyclerView.setAdapter(adapterStreaming);

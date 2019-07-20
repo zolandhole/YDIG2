@@ -56,6 +56,7 @@ public class FirebaseService extends FirebaseMessagingService {
                 list.add(data.getString("tanggal"));
                 list.add(data.getString("waktu"));
                 list.add(data.getString("id_login"));
+                list.add(data.getString("photo"));
                 Intent localintent = new Intent("PESANBARU");
                 localintent.putStringArrayListExtra("DATANOTIF", list);
                 LocalBroadcastManager.getInstance(this).sendBroadcast(localintent);
